@@ -44,7 +44,7 @@ defmodule Yum.Cuisine.Style do
     defp new_type(style, %{ "type" => _ }), do: %{ style | type: :other }
     defp new_type(style, _), do: style
 
-    defp new_foods(style, %{ "style" => foods }), do: %{ style | foods: Yum.Cuisine.Food.new(foods) }
+    defp new_foods(style, %{ "cuisine" => foods }), do: %{ style | foods: Yum.Cuisine.Food.new(foods) }
     defp new_foods(style, _), do: style
 
     defp create_parent_ref([_|groups]), do: create_parent_ref(groups, "")
