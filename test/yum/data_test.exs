@@ -10,4 +10,9 @@ defmodule Yum.DataTest do
         ingredients = Yum.Data.ingredients()
         assert tree_counter(ingredients) == Enum.count(Yum.Ingredient.new(ingredients))
     end
+
+    test "loading cuisines" do
+        cuisines = Yum.Data.cuisines()
+        assert tree_counter(cuisines) == Enum.count(Yum.Cuisine.Style.new(cuisines))
+    end
 end
