@@ -14,7 +14,7 @@ defmodule Yum.Diet do
     @doc """
       Convert to a diet struct.
     """
-    @spec new(Yum.Data.translation_tree) :: [t]
+    @spec new(Yum.Data.diet_tree) :: [t]
     def new(data) do
         Enum.map(data, fn { key, info } ->
             %Yum.Diet{

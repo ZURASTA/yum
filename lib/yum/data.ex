@@ -10,6 +10,8 @@ defmodule Yum.Data do
     @type food_list :: %{ optional(String.t) => translation_tree }
     @type ingredient_tree :: %{ optional(String.t) => ingredient_tree, required(:__info__) => %{ optional(String.t) => translation_tree | diet_list | allergen_list | nutrition } }
     @type cuisine_tree :: %{ optional(String.t) => cuisine_tree, required(:__info__) => %{ optional(String.t) => translation_tree | food_list } }
+    @type diet_tree :: %{ optional(String.t) => translation_tree }
+    @type allergen_tree :: %{ optional(String.t) => translation_tree }
 
     defp load(path), do: TomlElixir.parse_file!(path)
 
@@ -18,13 +20,13 @@ defmodule Yum.Data do
     @doc """
       Load the diet names and translations.
     """
-    @spec diets(String.t) :: translation_tree
+    @spec diets(String.t) :: diet_tree
     def diets(data \\ @path), do: load(Path.join(data, "translations/diet-names.toml"))
 
     @doc """
       Load the allergen names and translations.
     """
-    @spec allergens(String.t) :: translation_tree
+    @spec allergens(String.t) :: allergen_tree
     def allergens(data \\ @path), do: load(Path.join(data, "translations/allergen-names.toml"))
 
     @doc """
