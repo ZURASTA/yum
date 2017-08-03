@@ -206,10 +206,14 @@ defmodule Yum.DataTest do
     end
 
     test "loading diets", %{ diets: expected_diets } do
-        assert expected_diets == Yum.Data.diets()
+        diets = Yum.Data.diets()
+        assert Enum.count(diets) == Enum.count(Yum.Diet.new(diets))
+        assert expected_diets == diets
     end
 
     test "loading allergens", %{ allergens: expected_allergens } do
-        assert expected_allergens == Yum.Data.allergens()
+        allergens = Yum.Data.allergens()
+        assert Enum.count(allergens) == Enum.count(Yum.Allergen.new(allergens))
+        assert expected_allergens == allergens
     end
 end
