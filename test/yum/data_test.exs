@@ -142,6 +142,40 @@ defmodule Yum.DataTest do
                         __info__: %{ "translation" => %{ "en" => %{ "adj" => "polynesian", "term" => "polynesia" } }, "type" => "subregion" }
                     }
                 }
+            },
+            diets: %{
+                "carnivorous" => %{ "en" => %{ "term" => "carnivorous" } },
+                "fruitarian" => %{ "en" => %{ "term" => "fruitarian" } },
+                "halal" => %{ "en" => %{ "term" => "halal" } },
+                "ketogenic" => %{ "en" => %{ "term" => "ketogenic" } },
+                "kosher" => %{ "en" => %{ "term" => "kosher" } },
+                "lacto-vegetarian" => %{ "en" => %{ "term" => "lacto-vegetarian" } },
+                "omnivorous" => %{ "en" => %{ "term" => "omnivorous" } },
+                "ovo-lacto-vegetarian" => %{ "en" => %{ "term" => "ovo-lacto-vegetarian" } },
+                "paleolithic" => %{ "en" => %{ "term" => "paleolithic" } },
+                "pescetarian" => %{ "en" => %{ "term" => "pescetarian" } },
+                "raw-vegan" => %{ "en" => %{ "term" => "raw-vegan" } },
+                "vegan" => %{ "en" => %{ "term" => "vegan" } },
+                "vegetarian" => %{ "en" => %{ "term" => "vegetarian" } }
+            },
+            allergens: %{
+                "balsam-of-peru" => %{ "en" => %{ "term" => "balsam of peru" } },
+                "egg" => %{ "en" => %{ "term" => "egg allergy" } },
+                "fruit" => %{ "en" => %{ "term" => "fruit allergy" } },
+                "garlic" => %{ "en" => %{ "term" => "garlic allergy" } },
+                "gluten" => %{ "en" => %{ "term" => "gluten allergy" } },
+                "hot-pepper" => %{ "en" => %{ "term" => "hot pepper allergy" } },
+                "meat" => %{ "en" => %{ "term" => "meat allergy" } },
+                "milk" => %{ "en" => %{ "term" => "milk allergy" } },
+                "oat" => %{ "en" => %{ "term" => "oat allergy" } },
+                "peanut" => %{ "en" => %{ "term" => "peanut allergy" } },
+                "rice" => %{ "en" => %{ "term" => "rice allergy" } },
+                "seafood" => %{ "en" => %{ "term" => "seafood allergy" } },
+                "soy" => %{ "en" => %{ "term" => "soy allergy" } },
+                "sulfite" => %{ "en" => %{ "term" => "sulfite allergy" } },
+                "tartrazine" => %{ "en" => %{ "term" => "tartrazine allergy" } },
+                "tree-nut" => %{ "en" => %{ "term" => "tree nut allergy" } },
+                "wheat" => %{ "en" => %{ "term" => "wheat allergy" } }
             }
         }
     end
@@ -154,7 +188,7 @@ defmodule Yum.DataTest do
     test "loading ingredients", %{ ingredients: expected_ingredients } do
         ingredients = Yum.Data.ingredients()
         assert tree_counter(ingredients) == Enum.count(Yum.Ingredient.new(ingredients))
-        assert ingredients == expected_ingredients
+        assert expected_ingredients == ingredients
     end
 
     test "reducing ingredients" do
@@ -164,10 +198,18 @@ defmodule Yum.DataTest do
     test "loading cuisines", %{ cuisines: expected_cuisines } do
         cuisines = Yum.Data.cuisines()
         assert tree_counter(cuisines) == Enum.count(Yum.Cuisine.Style.new(cuisines))
-        assert cuisines == expected_cuisines
+        assert expected_cuisines == cuisines
     end
 
     test "reducing cuisines" do
         assert Yum.Data.reduce_cuisines(0, fn _, _, acc -> acc + 1 end) == tree_counter(Yum.Data.cuisines())
+    end
+
+    test "loading diets", %{ diets: expected_diets } do
+        assert expected_diets == Yum.Data.diets()
+    end
+
+    test "loading allergens", %{ allergens: expected_allergens } do
+        assert expected_allergens == Yum.Data.allergens()
     end
 end
