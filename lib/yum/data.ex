@@ -17,7 +17,7 @@ defmodule Yum.Data do
 
     defp load(path), do: TomlElixir.parse_file!(path)
 
-    @path "data/Food-Data"
+    @path Application.fetch_env!(:yum, :path)
 
     @doc """
       Load the diet names and translations.
