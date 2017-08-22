@@ -5,7 +5,9 @@ defmodule Yum.Data do
     @type translation :: %{ optional(String.t) => translation | String.t }
     @type translation_tree :: %{ optional(String.t) => translation }
     @type diet_list :: [String.t]
+    @type diet_info :: %{ optional(String.t) => diet_tree }
     @type allergen_list :: [String.t]
+    @type allergen_info :: %{ optional(String.t) => allergen_tree }
     @type nutrition :: %{ optional(String.t) => any }
     @type food_list :: %{ optional(String.t) => translation_tree }
     @type ingredient_info :: %{ optional(String.t) => translation_tree | diet_list | allergen_list | nutrition }
@@ -23,13 +25,25 @@ defmodule Yum.Data do
       Load the diet names and translations.
     """
     @spec diets(String.t) :: diet_tree
-    def diets(data \\ @path), do: load(Path.join(data, "translations/diet-names.toml"))
+    def diets(data \\ @path), do: load_list(Path.join(data, "diets"))
+
+    @doc """
+      Reduce the diet data.
+    """
+    @spec reduce_diets(any, (diet_info, [{ String.t, diet_info }], any -> any), String.t) :: any
+    def reduce_diets(acc, fun, data \\ @path), do: reduce_list(Path.join(data, "diets"), acc, fun)
 
     @doc """
       Load the allergen names and translations.
     """
     @spec allergens(String.t) :: allergen_tree
-    def allergens(data \\ @path), do: load(Path.join(data, "translations/allergen-names.toml"))
+    def allergens(data \\ @path), do: load_list(Path.join(data, "allergens"))
+
+    @doc """
+      Reduce the allergen data.
+    """
+    @spec reduce_allergens(any, (allergen_info, [{ String.t, allergen_info }], any -> any), String.t) :: any
+    def reduce_allergens(acc, fun, data \\ @path), do: reduce_list(Path.join(data, "allergens"), acc, fun)
 
     @doc """
       Load the ingredient data.
@@ -67,6 +81,18 @@ defmodule Yum.Data do
         end)
     end
 
+    defp load_list(path) do
+        Path.wildcard(Path.join(path, "*.toml"))
+        |> Enum.reduce(%{}, fn file, acc ->
+            [_|paths] = Enum.reverse(Path.split(Path.relative_to(file, path)))
+            contents = Enum.reduce([Path.basename(file, ".toml")|paths],load(file), fn name, contents ->
+                %{ name => contents}
+            end)
+
+            Map.merge(acc, contents, &merge_nested_contents/3)
+        end)
+    end
+
     defp merge_nested_contents(_key, a, b), do: Map.merge(a, b, &merge_nested_contents/3)
 
     defp reduce_tree(path, acc, fun) do
@@ -81,6 +107,19 @@ defmodule Yum.Data do
             { [{ Path.basename(name, ".toml"), data }|parent], acc }
         end)
         |> elem(1)
+    end
+
+    defp reduce_list(path, acc, fun) do
+      Path.wildcard(Path.join(path, "*.toml"))
+      |> Enum.reduce({ [], acc }, fn file, { _,acc } ->
+          [name|paths] = Enum.reverse(Path.split(Path.relative_to(file, path)))
+
+          data = load(file)
+          acc = fun.(data, acc)
+
+          { { Path.basename(name, ".toml"), data }, acc }
+      end)
+      |> elem(1)
     end
 
     defp remove_stale_nodes([dep = { name, _ }], [name]), do: [dep]
