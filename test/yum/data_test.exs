@@ -185,6 +185,9 @@ defmodule Yum.DataTest do
     defp tree_counter({ _, tree }, n), do: tree_counter(tree, n + 1)
     defp tree_counter(tree, n), do: Enum.reduce(tree, n, &tree_counter/2)
 
+    defp list_counter(list, n \\ 0)
+    defp list_counter(list, n), do: Enum.reduce(list, n, fn _, n -> n+1 end)
+
     test "loading ingredients", %{ ingredients: expected_ingredients } do
         ingredients = Yum.Data.ingredients()
         assert tree_counter(ingredients) == Enum.count(Yum.Ingredient.new(ingredients))
@@ -211,9 +214,17 @@ defmodule Yum.DataTest do
         assert expected_diets == diets
     end
 
+    test "reducing diets" do
+        assert Yum.Data.reduce_diets(0, fn _, acc -> acc + 1 end) == list_counter(Yum.Data.diets())
+    end
+
     test "loading allergens", %{ allergens: expected_allergens } do
         allergens = Yum.Data.allergens()
         assert Enum.count(allergens) == Enum.count(Yum.Allergen.new(allergens))
         assert expected_allergens == allergens
+    end
+
+    test "reducing allergens" do
+        assert Yum.Data.reduce_allergens(0, fn _, acc -> acc + 1 end) == list_counter(Yum.Data.allergens())
     end
 end
