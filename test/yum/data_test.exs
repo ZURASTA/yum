@@ -144,38 +144,39 @@ defmodule Yum.DataTest do
                 }
             },
             diets: %{
-                "carnivorous" => %{ "en" => %{ "term" => "carnivorous" } },
-                "fruitarian" => %{ "en" => %{ "term" => "fruitarian" } },
-                "halal" => %{ "en" => %{ "term" => "halal" } },
-                "ketogenic" => %{ "en" => %{ "term" => "ketogenic" } },
-                "kosher" => %{ "en" => %{ "term" => "kosher" } },
-                "lacto-vegetarian" => %{ "en" => %{ "term" => "lacto-vegetarian" } },
-                "omnivorous" => %{ "en" => %{ "term" => "omnivorous" } },
-                "ovo-lacto-vegetarian" => %{ "en" => %{ "term" => "ovo-lacto-vegetarian" } },
-                "paleolithic" => %{ "en" => %{ "term" => "paleolithic" } },
-                "pescetarian" => %{ "en" => %{ "term" => "pescetarian" } },
-                "raw-vegan" => %{ "en" => %{ "term" => "raw-vegan" } },
-                "vegan" => %{ "en" => %{ "term" => "vegan" } },
-                "vegetarian" => %{ "en" => %{ "term" => "vegetarian" } }
+                "carnivorous" => %{ "translation" => %{ "en" => %{ "term" => "carnivorous" } } },
+                "fruitarian" => %{ "translation" => %{ "en" => %{ "term" => "fruitarian" } } },
+                "halal" => %{ "translation" => %{ "en" => %{ "term" => "halal" } } },
+                "ketogenic" => %{ "translation" => %{ "en" => %{ "term" => "ketogenic" } } },
+                "kosher" => %{ "translation" => %{ "en" => %{ "term" => "kosher" } } },
+                "lacto-vegetarian" => %{ "translation" => %{ "en" => %{ "term" => "lacto-vegetarian" } } },
+                "omnivorous" => %{ "translation" => %{ "en" => %{ "term" => "omnivorous" } } },
+                "ovo-lacto-vegetarian" => %{ "translation" => %{ "en" => %{ "term" => "ovo-lacto-vegetarian" } } },
+                "paleolithic" => %{ "translation" => %{ "en" => %{ "term" => "paleolithic" } } },
+                "pescetarian" => %{ "translation" => %{ "en" => %{ "term" => "pescetarian" } } },
+                "raw-vegan" => %{ "translation" => %{ "en" => %{ "term" => "raw-vegan" } } },
+                "vegan" => %{ "translation" => %{ "en" => %{ "term" => "vegan" } } },
+                "vegetarian" => %{ "translation" => %{ "en" => %{ "term" => "vegetarian" } } },
+                "hindu" => %{}
             },
             allergens: %{
-                "balsam-of-peru" => %{ "en" => %{ "term" => "balsam of peru" } },
-                "egg" => %{ "en" => %{ "term" => "egg allergy" } },
-                "fruit" => %{ "en" => %{ "term" => "fruit allergy" } },
-                "garlic" => %{ "en" => %{ "term" => "garlic allergy" } },
-                "gluten" => %{ "en" => %{ "term" => "gluten allergy" } },
-                "hot-pepper" => %{ "en" => %{ "term" => "hot pepper allergy" } },
-                "meat" => %{ "en" => %{ "term" => "meat allergy" } },
-                "milk" => %{ "en" => %{ "term" => "milk allergy" } },
-                "oat" => %{ "en" => %{ "term" => "oat allergy" } },
-                "peanut" => %{ "en" => %{ "term" => "peanut allergy" } },
-                "rice" => %{ "en" => %{ "term" => "rice allergy" } },
-                "seafood" => %{ "en" => %{ "term" => "seafood allergy" } },
-                "soy" => %{ "en" => %{ "term" => "soy allergy" } },
-                "sulfite" => %{ "en" => %{ "term" => "sulfite allergy" } },
-                "tartrazine" => %{ "en" => %{ "term" => "tartrazine allergy" } },
-                "tree-nut" => %{ "en" => %{ "term" => "tree nut allergy" } },
-                "wheat" => %{ "en" => %{ "term" => "wheat allergy" } }
+                "balsam-of-peru" => %{ "translation" => %{ "en" => %{ "term" => "balsam of peru" } } },
+                "egg" => %{ "translation" => %{ "en" => %{ "term" => "egg allergy" } } },
+                "fruit" => %{ "translation" => %{ "en" => %{ "term" => "fruit allergy" } } },
+                "garlic" => %{ "translation" => %{ "en" => %{ "term" => "garlic allergy" } } },
+                "gluten" => %{ "translation" => %{ "en" => %{ "term" => "gluten allergy" } } },
+                "hot-pepper" => %{ "translation" => %{ "en" => %{ "term" => "hot pepper allergy" } } },
+                "meat" => %{ "translation" => %{ "en" => %{ "term" => "meat allergy" } } },
+                "milk" => %{ "translation" => %{ "en" => %{ "term" => "milk allergy" } } },
+                "oat" => %{ "translation" => %{ "en" => %{ "term" => "oat allergy" } } },
+                "peanut" => %{ "translation" => %{ "en" => %{ "term" => "peanut allergy" } } },
+                "rice" => %{ "translation" => %{ "en" => %{ "term" => "rice allergy" } } },
+                "seafood" => %{ "translation" => %{ "en" => %{ "term" => "seafood allergy" } } },
+                "soy" => %{ "translation" => %{ "en" => %{ "term" => "soy allergy" } } },
+                "sulfite" => %{ "translation" => %{ "en" => %{ "term" => "sulfite allergy" } } },
+                "tartrazine" => %{ "translation" => %{ "en" => %{ "term" => "tartrazine allergy" } } },
+                "tree-nut" => %{ "translation" => %{ "en" => %{ "term" => "tree nut allergy" } } },
+                "wheat" => %{ "translation" => %{ "en" => %{ "term" => "wheat allergy" } } }
             }
         }
     end
@@ -184,9 +185,6 @@ defmodule Yum.DataTest do
     defp tree_counter({ :__info__, _ }, n), do: n
     defp tree_counter({ _, tree }, n), do: tree_counter(tree, n + 1)
     defp tree_counter(tree, n), do: Enum.reduce(tree, n, &tree_counter/2)
-
-    defp list_counter(list, n \\ 0)
-    defp list_counter(list, n), do: Enum.reduce(list, n, fn _, n -> n+1 end)
 
     test "loading ingredients", %{ ingredients: expected_ingredients } do
         ingredients = Yum.Data.ingredients()
@@ -215,7 +213,7 @@ defmodule Yum.DataTest do
     end
 
     test "reducing diets" do
-        assert Yum.Data.reduce_diets(0, fn _, acc -> acc + 1 end) == list_counter(Yum.Data.diets())
+        assert Yum.Data.reduce_diets(0, fn _, acc -> acc + 1 end) == Enum.count(Yum.Data.diets())
     end
 
     test "loading allergens", %{ allergens: expected_allergens } do
@@ -225,6 +223,6 @@ defmodule Yum.DataTest do
     end
 
     test "reducing allergens" do
-        assert Yum.Data.reduce_allergens(0, fn _, acc -> acc + 1 end) == list_counter(Yum.Data.allergens())
+        assert Yum.Data.reduce_allergens(0, fn _, acc -> acc + 1 end) == Enum.count(Yum.Data.allergens())
     end
 end
