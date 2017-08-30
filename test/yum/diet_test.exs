@@ -4,8 +4,8 @@ defmodule Yum.DietTest do
     setup do
         %{
             diets: %{
-                "foo" => %{ "en" => %{ "term" => "1" } },
-                "bar" => %{ "en" => %{ "term" => "2" } }
+                "foo" => %{ "translation" => %{ "en" => %{ "term" => "1" } } },
+                "bar" => %{ "translation" => %{ "en" => %{ "term" => "2" } } }
             }
         }
     end
