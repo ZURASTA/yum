@@ -19,7 +19,7 @@ defmodule Yum.Allergen do
         Enum.map(data, fn { key, info } ->
             %Yum.Allergen{
                 ref: "#{key}",
-                translation: info["translation"]
+                translation: info["translation"] || %{}
             }
         end)
     end
