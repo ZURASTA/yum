@@ -19,7 +19,7 @@ defmodule Yum.Diet do
         Enum.map(data, fn { key, info } ->
             %Yum.Diet{
                 ref: "#{key}",
-                translation: info
+                translation: info["translation"] || %{}
             }
         end)
     end

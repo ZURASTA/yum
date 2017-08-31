@@ -4,8 +4,8 @@ defmodule Yum.AllergenTest do
     setup do
         %{
             allergens: %{
-                "foo" => %{ "en" => %{ "term" => "1" } },
-                "bar" => %{ "en" => %{ "term" => "2" } }
+                "foo" => %{ "translation" => %{ "en" => %{ "term" => "1" } } },
+                "bar" => %{ "translation" => %{ "en" => %{ "term" => "2" } } }
             }
         }
     end
