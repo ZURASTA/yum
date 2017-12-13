@@ -156,8 +156,7 @@ defmodule Yum.DataTest do
                 "pescetarian" => %{ "translation" => %{ "en" => %{ "term" => "pescetarian" } } },
                 "raw-vegan" => %{ "translation" => %{ "en" => %{ "term" => "raw-vegan" } } },
                 "vegan" => %{ "translation" => %{ "en" => %{ "term" => "vegan" } } },
-                "vegetarian" => %{ "translation" => %{ "en" => %{ "term" => "vegetarian" } } },
-                "hindu" => %{}
+                "vegetarian" => %{ "translation" => %{ "en" => %{ "term" => "vegetarian" } } }
             },
             allergens: %{
                 "balsam-of-peru" => %{ "translation" => %{ "en" => %{ "term" => "balsam of peru" } } },
