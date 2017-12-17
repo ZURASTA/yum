@@ -1,10 +1,10 @@
 defmodule Yum.Migration do
     defstruct [
         timestamp: -1,
-        moved: [],
-        deleted: [],
-        added: [],
-        updated: [],
+        move: [],
+        delete: [],
+        add: [],
+        update: [],
     ]
 
     def new(data) do
@@ -15,33 +15,33 @@ defmodule Yum.Migration do
         |> new_updated(data)
     end
 
-    defp new_moved(migration, %{ "moved" => moved }), do: %{ migration | moved: moved }
+    defp new_moved(migration, %{ "move" => moved }), do: %{ migration | move: moved }
     defp new_moved(migration, _), do: migration
 
-    defp new_deleted(migration, %{ "deleted" => deleted }), do: %{ migration | deleted: deleted }
+    defp new_deleted(migration, %{ "delete" => deleted }), do: %{ migration | delete: deleted }
     defp new_deleted(migration, _), do: migration
 
-    defp new_added(migration, %{ "added" => added }), do: %{ migration | added: added }
+    defp new_added(migration, %{ "add" => added }), do: %{ migration | add: added }
     defp new_added(migration, _), do: migration
 
-    defp new_updated(migration, %{ "updated" => updated }), do: %{ migration | updated: updated }
+    defp new_updated(migration, %{ "update" => updated }), do: %{ migration | update: updated }
     defp new_updated(migration, _), do: migration
 
     def merge(migration_a = %{ timestamp: a }, migration_b = %{ timestamp: b }) when a > b, do: merge(migration_b, migration_a)
     def merge(migration_a, migration_b) do
-        { added, moved_removals } = merge_move(migration_a.added, migration_b.moved)
-        { updated, _ } = merge_move(migration_a.updated, migration_b.moved)
-        { moved, moved_removals } = merge_move(migration_a.moved, migration_b.moved, moved_removals)
+        { added, moved_removals } = merge_move(migration_a.add, migration_b.move)
+        { updated, _ } = merge_move(migration_a.update, migration_b.move)
+        { moved, moved_removals } = merge_move(migration_a.move, migration_b.move, moved_removals)
 
-        { added, deleted_removals } = merge_delete(added, migration_b.deleted)
-        { updated, _ } = merge_delete(updated, migration_b.deleted)
+        { added, deleted_removals } = merge_delete(added, migration_b.delete)
+        { updated, _ } = merge_delete(updated, migration_b.delete)
 
         %Yum.Migration{
             timestamp: migration_b.timestamp,
-            added: added ++ migration_b.added,
-            updated: updated ++ Enum.filter(migration_b.updated, &changes?(&1, added)),
-            moved: moved ++ (migration_b.moved -- moved_removals),
-            deleted: migration_a.deleted ++ (migration_b.deleted -- deleted_removals)
+            add: added ++ migration_b.add,
+            update: updated ++ Enum.filter(migration_b.update, &changes?(&1, added)),
+            move: moved ++ (migration_b.move -- moved_removals),
+            delete: migration_a.delete ++ (migration_b.delete -- deleted_removals)
         }
     end
 
