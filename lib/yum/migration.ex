@@ -36,10 +36,12 @@ defmodule Yum.Migration do
         { added, deleted_removals } = merge_delete(added, migration_b.delete)
         { updated, _ } = merge_delete(updated, migration_b.delete)
 
+        moved = Enum.reverse(moved)
+
         %Yum.Migration{
             timestamp: migration_b.timestamp,
             add: added ++ migration_b.add,
-            update: updated ++ Enum.filter(migration_b.update, &changes?(&1, added)),
+            update: updated ++ Enum.filter(migration_b.update, &(!changes?(&1, added) && !changes?(&1, updated))),
             move: moved ++ (migration_b.move -- moved_removals),
             delete: migration_a.delete ++ (migration_b.delete -- deleted_removals)
         }
