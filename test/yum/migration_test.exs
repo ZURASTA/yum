@@ -124,4 +124,23 @@ defmodule Yum.MigrationTest do
             "update" => ["a", "c", "f"]
         }))
     end
+
+    test "transactions/1" do
+        assert [
+            move: { "e", "f" },
+            move: { "g", "h" },
+            delete: "i",
+            delete: "j",
+            add: "a",
+            add: "b",
+            update: "c",
+            update: "d"
+        ] == Yum.Migration.transactions(%Yum.Migration{
+            timestamp: 1,
+            add: ["a", "b"],
+            update: ["c", "d"],
+            move: [{ "e", "f" }, { "g", "h" }],
+            delete: ["i", "j"]
+        })
+    end
 end
