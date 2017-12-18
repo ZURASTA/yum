@@ -27,6 +27,13 @@ defmodule Yum.Migration do
     defp new_updated(migration, %{ "update" => updated }), do: %{ migration | update: updated }
     defp new_updated(migration, _), do: migration
 
+    def transactions(migration) do
+        Enum.map(migration.move, &({ :move, &1 }))
+        ++ Enum.map(migration.delete, &({ :delete, &1 }))
+        ++ Enum.map(migration.add, &({ :add, &1 }))
+        ++ Enum.map(migration.update, &({ :update, &1 }))
+    end
+
     def merge(migration_a = %{ timestamp: a }, migration_b = %{ timestamp: b }) when a > b, do: merge(migration_b, migration_a)
     def merge(migration_a, migration_b) do
         { added, moved_removals } = merge_move(migration_a.add, migration_b.move)
