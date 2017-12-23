@@ -156,8 +156,7 @@ defmodule Yum.DataTest do
                 "pescetarian" => %{ "translation" => %{ "en" => %{ "term" => "pescetarian" } } },
                 "raw-vegan" => %{ "translation" => %{ "en" => %{ "term" => "raw-vegan" } } },
                 "vegan" => %{ "translation" => %{ "en" => %{ "term" => "vegan" } } },
-                "vegetarian" => %{ "translation" => %{ "en" => %{ "term" => "vegetarian" } } },
-                "hindu" => %{}
+                "vegetarian" => %{ "translation" => %{ "en" => %{ "term" => "vegetarian" } } }
             },
             allergens: %{
                 "balsam-of-peru" => %{ "translation" => %{ "en" => %{ "term" => "balsam of peru" } } },
@@ -177,6 +176,112 @@ defmodule Yum.DataTest do
                 "tartrazine" => %{ "translation" => %{ "en" => %{ "term" => "tartrazine allergy" } } },
                 "tree-nut" => %{ "translation" => %{ "en" => %{ "term" => "tree nut allergy" } } },
                 "wheat" => %{ "translation" => %{ "en" => %{ "term" => "wheat allergy" } } }
+            },
+            migrations: %{
+                ingredients: [
+                    %{
+                        "timestamp" => "0",
+                        "add" => [
+                            "dairy",
+                            "dairy/cheeses",
+                            "dairy/cheeses/mozzarella",
+                            "herbs",
+                            "herbs/basil",
+                            "meats",
+                            "meats/pork",
+                            "meats/poultry",
+                            "sauces",
+                            "sauces/tomato-sauce",
+                            "vegetables",
+                            "vegetables/spring-onion",
+                            "vegetables/tomato",
+                            "vegetables/tubers",
+                            "vegetables/tubers/potato"
+                        ]
+                    }
+                ],
+                cuisines: [
+                    %{
+                        "timestamp" => "0",
+                        "add" => [
+                            "african",
+                            "african/central-african",
+                            "african/east-african",
+                            "african/horn-african",
+                            "african/north-african",
+                            "african/southern-african",
+                            "african/west-african",
+                            "americas",
+                            "americas/caribbean",
+                            "americas/central-american",
+                            "americas/latin-american",
+                            "americas/north-american",
+                            "americas/south-american",
+                            "asian",
+                            "asian/central-asian",
+                            "asian/east-asian",
+                            "asian/south-asian",
+                            "asian/southeast-asian",
+                            "asian/west-asian",
+                            "european",
+                            "european/central-european",
+                            "european/eastern-european",
+                            "european/northern-european",
+                            "european/southern-european",
+                            "european/southern-european/italian",
+                            "european/western-european",
+                            "oceanian",
+                            "oceanian/australasian",
+                            "oceanian/melanesian",
+                            "oceanian/micronesian",
+                            "oceanian/polynesian"
+                        ]
+                    }
+                ],
+                diets: [
+                    %{
+                        "timestamp" => "0",
+                        "add" => [
+                            "carnivorous",
+                            "fruitarian",
+                            "halal",
+                            "ketogenic",
+                            "kosher",
+                            "lacto-vegetarian",
+                            "omnivorous",
+                            "ovo-lacto-vegetarian",
+                            "paleolithic",
+                            "pescetarian",
+                            "raw-vegan",
+                            "vegan",
+                            "vegetarian"
+                        ]
+                    }
+                ],
+                allergens: [
+                    %{
+                        "timestamp" => "0",
+                        "add" => [
+                            "balsam-of-peru",
+                            "egg",
+                            "fruit",
+                            "garlic",
+                            "gluten",
+                            "hot-pepper",
+                            "meat",
+                            "milk",
+                            "oat",
+                            "peanut",
+                            "rice",
+                            "seafood",
+                            "soy",
+                            "sulfite",
+                            "tartrazine",
+                            "tree-nut",
+                            "wheat"
+                        ]
+                    }
+                ]
             }
         }
     end
@@ -196,6 +301,15 @@ defmodule Yum.DataTest do
         assert Yum.Data.reduce_ingredients(0, fn _, _, acc -> acc + 1 end) == tree_counter(Yum.Data.ingredients())
     end
 
+    test "loading ingredient migrations", %{ migrations: %{ ingredients: expected_migrations } } do
+        migrations = Yum.Data.migrations("ingredients")
+        assert expected_migrations == migrations
+    end
+
+    test "reducing ingredient migrations", %{ migrations: %{ ingredients: expected_migrations } } do
+        assert Enum.reduce(expected_migrations, %Yum.Migration{}, &Yum.Migration.merge(&2, Yum.Migration.new(&1))) == Yum.Data.reduce_migrations(%Yum.Migration{}, "ingredients", &Yum.Migration.merge(&2, Yum.Migration.new(&1)))
+    end
+
     test "loading cuisines", %{ cuisines: expected_cuisines } do
         cuisines = Yum.Data.cuisines()
         assert tree_counter(cuisines) == Enum.count(Yum.Cuisine.Style.new(cuisines))
@@ -204,6 +318,15 @@ defmodule Yum.DataTest do
 
     test "reducing cuisines" do
         assert Yum.Data.reduce_cuisines(0, fn _, _, acc -> acc + 1 end) == tree_counter(Yum.Data.cuisines())
+    end
+
+    test "loading cuisine migrations", %{ migrations: %{ cuisines: expected_migrations } } do
+        migrations = Yum.Data.migrations("cuisines")
+        assert expected_migrations == migrations
+    end
+
+    test "reducing cuisine migrations", %{ migrations: %{ cuisines: expected_migrations } } do
+        assert Enum.reduce(expected_migrations, %Yum.Migration{}, &Yum.Migration.merge(&2, Yum.Migration.new(&1))) == Yum.Data.reduce_migrations(%Yum.Migration{}, "cuisines", &Yum.Migration.merge(&2, Yum.Migration.new(&1)))
     end
 
     test "loading diets", %{ diets: expected_diets } do
@@ -216,6 +339,15 @@ defmodule Yum.DataTest do
         assert Yum.Data.reduce_diets(0, fn _, acc -> acc + 1 end) == Enum.count(Yum.Data.diets())
     end
 
+    test "loading diet migrations", %{ migrations: %{ diets: expected_migrations } } do
+        migrations = Yum.Data.migrations("diets")
+        assert expected_migrations == migrations
+    end
+
+    test "reducing diet migrations", %{ migrations: %{ diets: expected_migrations } } do
+        assert Enum.reduce(expected_migrations, %Yum.Migration{}, &Yum.Migration.merge(&2, Yum.Migration.new(&1))) == Yum.Data.reduce_migrations(%Yum.Migration{}, "diets", &Yum.Migration.merge(&2, Yum.Migration.new(&1)))
+    end
+
     test "loading allergens", %{ allergens: expected_allergens } do
         allergens = Yum.Data.allergens()
         assert Enum.count(allergens) == Enum.count(Yum.Allergen.new(allergens))
@@ -224,5 +356,14 @@ defmodule Yum.DataTest do
 
     test "reducing allergens" do
         assert Yum.Data.reduce_allergens(0, fn _, acc -> acc + 1 end) == Enum.count(Yum.Data.allergens())
+    end
+
+    test "loading allergen migrations", %{ migrations: %{ allergens: expected_migrations } } do
+        migrations = Yum.Data.migrations("allergens")
+        assert expected_migrations == migrations
+    end
+
+    test "reducing allergen migrations", %{ migrations: %{ allergens: expected_migrations } } do
+        assert Enum.reduce(expected_migrations, %Yum.Migration{}, &Yum.Migration.merge(&2, Yum.Migration.new(&1))) == Yum.Data.reduce_migrations(%Yum.Migration{}, "allergens", &Yum.Migration.merge(&2, Yum.Migration.new(&1)))
     end
 end

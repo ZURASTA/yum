@@ -30,6 +30,9 @@ defmodule Yum.Mixfile do
     #
     # Type "mix help deps" for more examples and options
     defp deps do
-        [{ :toml_elixir, "~> 1.1" }]
+        [
+            { :toml_elixir, "~> 1.1" },
+            { :yaml_elixir, "~> 1.3" }
+        ]
     end
 end
