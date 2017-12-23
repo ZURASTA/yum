@@ -1,4 +1,8 @@
 defmodule Yum.Migration do
+    @moduledoc """
+      A struct that contains the migration info.
+    """
+
     defstruct [
         timestamp: -1,
         move: [],
@@ -16,6 +20,9 @@ defmodule Yum.Migration do
 
     @type t :: %Yum.Migration{ timestamp: integer, move: [{ file, file }], delete: [file], add: [file], update: [file] }
 
+    @doc """
+      Convert to a migration struct
+    """
     @spec new(Yum.Data.migration) :: [t]
     def new(data) do
         %Yum.Migration{ timestamp: String.to_integer(data["timestamp"]) }
@@ -37,6 +44,11 @@ defmodule Yum.Migration do
     defp new_updated(migration, %{ "update" => updated }), do: %{ migration | update: updated }
     defp new_updated(migration, _), do: migration
 
+    @doc """
+      Get the list of transactions that the migration represents.
+
+      These transactions are ordered in the order they should be applied.
+    """
     @spec transactions(t) :: [move | delete | add | update]
     def transactions(migration) do
         Enum.map(migration.move, &({ :move, &1 }))
@@ -45,6 +57,9 @@ defmodule Yum.Migration do
         ++ Enum.map(migration.update, &({ :update, &1 }))
     end
 
+    @doc """
+      Merge two migrations into one.
+    """
     @spec merge(t, t) :: t
     def merge(migration_a = %{ timestamp: a }, migration_b = %{ timestamp: b }) when a > b, do: merge(migration_b, migration_a)
     def merge(migration_a, migration_b) do
