@@ -73,12 +73,23 @@ defmodule Yum.Data do
     @doc """
       Load the migration data.
     """
-    @spec migrations(String.t, integer, String.t) :: migration
+    @spec migrations(String.t, integer, String.t) :: [migration]
     def migrations(type, timestamp \\ -1, data \\ @path) do
         Path.wildcard(Path.join([data, type, "__migrations__", "*.yml"]))
         |> Enum.filter(&(to_timestamp(&1) > timestamp))
         |> Enum.sort(&(to_timestamp(&1) < to_timestamp(&2)))
-        |> Enum.reduce(%Yum.Migration{}, &Yum.Migration.merge(&2, load_migration(&1)))
+        |> Enum.map(&load_migration/1)
+    end
+
+    @doc """
+      Reduce the migration data.
+    """
+    @spec reduce_migrations(any, String.t, (migration, any -> any), integer, String.t) :: any
+    def reduce_migrations(acc, type, fun, timestamp \\ -1, data \\ @path) do
+        Path.wildcard(Path.join([data, type, "__migrations__", "*.yml"]))
+        |> Enum.filter(&(to_timestamp(&1) > timestamp))
+        |> Enum.sort(&(to_timestamp(&1) < to_timestamp(&2)))
+        |> Enum.reduce(acc, &(fun.(load_migration(&1), &2)))
     end
 
     defp load_list(path) do
@@ -121,7 +132,6 @@ defmodule Yum.Data do
             other -> other
         end)
         |> Map.new
-        |> Yum.Migration.new
     end
 
     defp merge_nested_contents(_key, a, b), do: Map.merge(a, b, &merge_nested_contents/3)
