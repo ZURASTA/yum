@@ -7,6 +7,16 @@ defmodule Yum.Migration do
         update: [],
     ]
 
+    @type file :: String.t
+    @type transaction(op, item) :: { op, item }
+    @type delete :: transaction(:delete, file)
+    @type add :: transaction(:add, file)
+    @type update :: transaction(:update, file)
+    @type move :: transaction(:move, { file, file })
+
+    @type t :: %Yum.Migration{ timestamp: integer, move: [{ file, file }], delete: [file], add: [file], update: [file] }
+
+    @spec new(Yum.Data.migration) :: [t]
     def new(data) do
         %Yum.Migration{ timestamp: String.to_integer(data["timestamp"]) }
         |> new_moved(data)
@@ -27,6 +37,7 @@ defmodule Yum.Migration do
     defp new_updated(migration, %{ "update" => updated }), do: %{ migration | update: updated }
     defp new_updated(migration, _), do: migration
 
+    @spec transactions(t) :: [move | delete | add | update]
     def transactions(migration) do
         Enum.map(migration.move, &({ :move, &1 }))
         ++ Enum.map(migration.delete, &({ :delete, &1 }))
@@ -34,6 +45,7 @@ defmodule Yum.Migration do
         ++ Enum.map(migration.update, &({ :update, &1 }))
     end
 
+    @spec merge(t, t) :: t
     def merge(migration_a = %{ timestamp: a }, migration_b = %{ timestamp: b }) when a > b, do: merge(migration_b, migration_a)
     def merge(migration_a, migration_b) do
         { added, moved_removals } = merge_move(migration_a.add, migration_b.move)
