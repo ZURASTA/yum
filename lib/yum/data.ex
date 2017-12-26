@@ -1,6 +1,12 @@
 defmodule Yum.Data do
     @moduledoc """
       Import food data.
+
+      The location of the data can either be set globally in the config:
+
+        config :yum, path: "path/to/data"
+
+      Or it can be explicitly passed to a function.
     """
     @type translation :: %{ optional(String.t) => translation | String.t }
     @type translation_tree :: %{ optional(String.t) => translation }
@@ -20,61 +26,199 @@ defmodule Yum.Data do
 
     defp load(path), do: TomlElixir.parse_file!(path)
 
-    @path Application.fetch_env!(:yum, :path)
+    defp path(), do: Application.fetch_env!(:yum, :path)
 
     @doc """
       Load the diet names and translations.
+
+      Uses the path set in the config under `:path`.
+
+      See `diets/1`.
+    """
+    @spec diets() :: diet_tree
+    def diets(), do: diets(path())
+
+    @doc """
+      Load the diet names and translations.
+
+      Uses the path referenced by `data`.
     """
     @spec diets(String.t) :: diet_tree
-    def diets(data \\ @path), do: load_list(Path.join(data, "diets"))
+    def diets(data), do: load_list(Path.join(data, "diets"))
 
     @doc """
       Reduce the diet data.
+
+      Uses the path set in the config under `:path`.
+
+      See `reduce_diets/3`.
+    """
+    @spec reduce_diets(any, (diet_info, any -> any)) :: any
+    def reduce_diets(acc, fun), do: reduce_diets(acc, fun, path())
+
+    @doc """
+      Reduce the diet data.
+
+      Each diet is passed to `fun` and an updated accumulator is returned.
+
+      Uses the path referenced by `data`.
     """
     @spec reduce_diets(any, (diet_info, any -> any), String.t) :: any
-    def reduce_diets(acc, fun, data \\ @path), do: reduce_list(Path.join(data, "diets"), acc, fun)
+    def reduce_diets(acc, fun, data), do: reduce_list(Path.join(data, "diets"), acc, fun)
 
     @doc """
       Load the allergen names and translations.
+
+      Uses the path set in the config under `:path`.
+
+      See `allergens/1`.
+    """
+    @spec allergens() :: allergen_tree
+    def allergens(), do: allergens(path())
+
+    @doc """
+      Load the allergen names and translations.
+
+      Uses the path referenced by `data`.
     """
     @spec allergens(String.t) :: allergen_tree
-    def allergens(data \\ @path), do: load_list(Path.join(data, "allergens"))
+    def allergens(data), do: load_list(Path.join(data, "allergens"))
 
     @doc """
       Reduce the allergen data.
+
+      Uses the path set in the config under `:path`.
+
+      See `reduce_allergens/3`.
+    """
+    @spec reduce_allergens(any, (allergen_info, any -> any)) :: any
+    def reduce_allergens(acc, fun), do: reduce_allergens(acc, fun, path())
+
+    @doc """
+      Reduce the allergen data.
+
+      Each allergen is passed to `fun` and an updated accumulator is returned.
+
+      Uses the path referenced by `data`.
     """
     @spec reduce_allergens(any, (allergen_info, any -> any), String.t) :: any
-    def reduce_allergens(acc, fun, data \\ @path), do: reduce_list(Path.join(data, "allergens"), acc, fun)
+    def reduce_allergens(acc, fun, data), do: reduce_list(Path.join(data, "allergens"), acc, fun)
 
     @doc """
       Load the ingredient data.
+
+      Uses the path set in the config under `:path`.
+
+      See `ingredients/2`.
+    """
+    @spec ingredients(String.t) :: ingredient_tree
+    def ingredients(group \\ ""), do: ingredients(group, path())
+
+    @doc """
+      Load the ingredient data.
+
+      If only a particular group of ingredients is required, the path to
+      find these can be provided to `group`. This will however not include
+      any parent information that should be applied to these child ingredients.
+
+      Uses the path referenced by `data`.
     """
     @spec ingredients(String.t, String.t) :: ingredient_tree
-    def ingredients(group \\ "", data \\ @path), do: load_tree(Path.join([data, "ingredients", group]))
+    def ingredients(group, data), do: load_tree(Path.join([data, "ingredients", group]))
 
     @doc """
       Reduce the ingredient data.
+
+      Uses the path set in the config under `:path`.
+
+      See `reduce_ingredients/4`
     """
     @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t) :: any
-    def reduce_ingredients(acc, fun, group \\ "", data \\ @path), do: reduce_tree(Path.join([data, "ingredients", group]), acc, fun)
+    def reduce_ingredients(acc, fun, group \\ ""), do: reduce_ingredients(acc, fun, group, path())
+
+    @doc """
+      Reduce the ingredient data.
+
+      Each ingredient is passed to `fun` and an updated accumulator is returned.
+
+      If only a particular group of ingredients is required, the path to
+      find these can be provided to `group`. This will however not include
+      any parent information that should be applied to these child ingredients.
+
+      Uses the path referenced by `data`.
+    """
+    @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t, String.t) :: any
+    def reduce_ingredients(acc, fun, group, data), do: reduce_tree(Path.join([data, "ingredients", group]), acc, fun)
 
     @doc """
       Load the cuisine data.
+
+      Uses the path set in the config under `:path`.
+
+      See `cuisines/2`
+    """
+    @spec cuisines(String.t) :: cuisine_tree
+    def cuisines(group \\ ""), do: cuisines(group, path())
+
+    @doc """
+      Load the cuisine data.
+
+      If only a particular group of cuisines is required, the path to
+      find these can be provided to `group`. This will however not include
+      any parent information that should be applied to these child cuisines.
+
+      Uses the path referenced by `data`.
     """
     @spec cuisines(String.t, String.t) :: cuisine_tree
-    def cuisines(group \\ "", data \\ @path), do: load_tree(Path.join([data, "cuisines", group]))
+    def cuisines(group, data), do: load_tree(Path.join([data, "cuisines", group]))
 
     @doc """
       Reduce the cuisine data.
+
+      Uses the path set in the config under `:path`.
+
+      See `reduce_cuisines/4`
     """
     @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t) :: any
-    def reduce_cuisines(acc, fun, group \\ "", data \\ @path), do: reduce_tree(Path.join([data, "cuisines", group]), acc, fun)
+    def reduce_cuisines(acc, fun, group \\ ""), do: reduce_cuisines(acc, fun, group, path())
+
+    @doc """
+      Reduce the cuisine data.
+
+      Each cuisine is passed to `fun` and an updated accumulator is returned.
+
+      If only a particular group of cuisines is required, the path to
+      find these can be provided to `group`. This will however not include
+      any parent information that should be applied to these child cuisines.
+
+      Uses the path referenced by `data`.
+    """
+    @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t, String.t) :: any
+    def reduce_cuisines(acc, fun, group, data), do: reduce_tree(Path.join([data, "cuisines", group]), acc, fun)
 
     @doc """
       Load the migration data.
+
+      Uses the path set in the config under `:path`.
+
+      See `migrations/3`
+    """
+    @spec migrations(String.t, integer) :: [migration]
+    def migrations(type, timestamp \\ -1), do: migrations(type, timestamp, path())
+
+    @doc """
+      Load the migration data.
+
+      The path to the set of migration data for a certain type should be passed
+      to `type`.
+
+      Any migration files after `timestamp` will be loaded, any earlier or
+      equal to will be ignored.
+
+      Uses the path referenced by `data`.
     """
     @spec migrations(String.t, integer, String.t) :: [migration]
-    def migrations(type, timestamp \\ -1, data \\ @path) do
+    def migrations(type, timestamp, data) do
         Path.wildcard(Path.join([data, type, "__migrations__", "*.yml"]))
         |> Enum.filter(&(to_timestamp(&1) > timestamp))
         |> Enum.sort(&(to_timestamp(&1) < to_timestamp(&2)))
@@ -83,9 +227,29 @@ defmodule Yum.Data do
 
     @doc """
       Reduce the migration data.
+
+      Uses the path set in the config under `:path`.
+
+      See `reduce_migrations/5`
+    """
+    @spec reduce_migrations(any, String.t, (migration, any -> any), integer) :: any
+    def reduce_migrations(acc, type, fun, timestamp \\ -1), do: reduce_migrations(acc, type, fun, timestamp, path())
+
+    @doc """
+      Reduce the migration data.
+
+      Each migration is passed to `fun` and an updated accumulator is returned.
+
+      The path to the set of migration data for a certain type should be passed
+      to `type`.
+
+      Any migration files after `timestamp` will be loaded, any earlier or
+      equal to will be ignored.
+
+      Uses the path referenced by `data`.
     """
     @spec reduce_migrations(any, String.t, (migration, any -> any), integer, String.t) :: any
-    def reduce_migrations(acc, type, fun, timestamp \\ -1, data \\ @path) do
+    def reduce_migrations(acc, type, fun, timestamp, data) do
         Path.wildcard(Path.join([data, type, "__migrations__", "*.yml"]))
         |> Enum.filter(&(to_timestamp(&1) > timestamp))
         |> Enum.sort(&(to_timestamp(&1) < to_timestamp(&2)))
