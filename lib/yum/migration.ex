@@ -1,6 +1,9 @@
 defmodule Yum.Migration do
     @moduledoc """
       A struct that contains the migration info.
+
+      Migration items can optionally contain metadata associated with that
+      individual transaction.
     """
 
     defstruct [
@@ -11,14 +14,16 @@ defmodule Yum.Migration do
         update: [],
     ]
 
+    @type meta :: any
     @type file :: String.t
-    @type transaction(op, item) :: { op, item }
+    @type item(item) :: item | { meta, item }
+    @type transaction(op, item) :: { op, item(item) }
     @type delete :: transaction(:delete, file)
     @type add :: transaction(:add, file)
     @type update :: transaction(:update, file)
     @type move :: transaction(:move, { file, file })
 
-    @type t :: %Yum.Migration{ timestamp: integer, move: [{ file, file }], delete: [file], add: [file], update: [file] }
+    @type t :: %Yum.Migration{ timestamp: integer, move: [item({ file, file })], delete: [item(file)], add: [item(file)], update: [item(file)] }
 
     @doc """
       Convert to a migration struct
@@ -76,8 +81,8 @@ defmodule Yum.Migration do
             timestamp: migration_b.timestamp,
             add: added ++ migration_b.add,
             update: updated ++ Enum.filter(migration_b.update, &(!changes?(&1, added) && !changes?(&1, updated))),
-            move: moved ++ (migration_b.move -- moved_removals),
-            delete: migration_a.delete ++ (migration_b.delete -- deleted_removals)
+            move: moved ++ Enum.filter(migration_b.move, &(!changes?(&1, moved_removals))),
+            delete: migration_a.delete ++ Enum.filter(migration_b.delete, &(!changes?(&1, deleted_removals)))
         }
     end
 
@@ -97,6 +102,7 @@ defmodule Yum.Migration do
     defp move(file, move_transactions) do
         Enum.find_value(move_transactions, { file, nil }, fn
             transaction = { ^file, new_file } -> { new_file, transaction }
+            { _, transaction = { ^file, new_file } } -> { new_file, transaction }
             _ -> false
         end)
     end
@@ -117,6 +123,7 @@ defmodule Yum.Migration do
     defp changes?({ _, file }, transactions), do: changes?(file, transactions)
     defp changes?(file, transactions) do
         Enum.find_value(transactions, false, fn
+            { _, ^file } -> true
             ^file -> true
             _ -> false
         end)
