@@ -110,6 +110,22 @@ defmodule Yum.MigrationTest do
 
         assert %Yum.Migration{
             timestamp: 1,
+            add: ["a"],
+            update: ["c"],
+            move: [{ "e", "f" }, { "g", "h" }],
+            delete: ["d", "h"]
+        } == Yum.Migration.merge(Yum.Migration.new(%{
+            "timestamp" => "0",
+            "add" => ["a", "b"],
+            "update" => ["c", "d"],
+            "move" => [{ "e", "f" }, { "g", "h" }]
+        }), Yum.Migration.new(%{
+            "timestamp" => "1",
+            "delete" => ["b", "d", "h"]
+        }))
+
+        assert %Yum.Migration{
+            timestamp: 1,
             add: ["a2", "b"],
             update: ["c2", "d"],
             move: [{ "e", "f2" }, { "g", "h" }, {"c", "c2"}]
@@ -125,6 +141,21 @@ defmodule Yum.MigrationTest do
 
         assert %Yum.Migration{
             timestamp: 1,
+            add: ["a", "b2"],
+            update: ["c", "d2"],
+            move: [{ "e", "f" }, { "g", "h2" }, {"d", "d2"}]
+        } == Yum.Migration.merge(Yum.Migration.new(%{
+            "timestamp" => "0",
+            "add" => ["a", "b"],
+            "update" => ["c", "d"],
+            "move" => [{ "e", "f" }, { "g", "h" }]
+        }), Yum.Migration.new(%{
+            "timestamp" => "1",
+            "move" => [{ "b", "b2" }, { "d", "d2" }, { "h", "h2" }]
+        }))
+
+        assert %Yum.Migration{
+            timestamp: 1,
             add: ["a", "b"],
             update: ["c", "d", "f"],
             move: [{ "e", "f" }, { "g", "h" }]
@@ -136,6 +167,21 @@ defmodule Yum.MigrationTest do
         }), Yum.Migration.new(%{
             "timestamp" => "1",
             "update" => ["a", "c", "f"]
+        }))
+
+        assert %Yum.Migration{
+            timestamp: 1,
+            add: ["a", "b"],
+            update: ["c", "d", "h"],
+            move: [{ "e", "f" }, { "g", "h" }]
+        } == Yum.Migration.merge(Yum.Migration.new(%{
+            "timestamp" => "0",
+            "add" => ["a", "b"],
+            "update" => ["c", "d"],
+            "move" => [{ "e", "f" }, { "g", "h" }]
+        }), Yum.Migration.new(%{
+            "timestamp" => "1",
+            "update" => ["b", "d", "h"]
         }))
     end
 
@@ -158,6 +204,22 @@ defmodule Yum.MigrationTest do
 
         assert %Yum.Migration{
             timestamp: 1,
+            add: [{ 1, "a" }],
+            update: [{ 3, "c" }],
+            move: [{ 5, { "e", "f" } }, { 6, { "g", "h" } }],
+            delete: ["d", "h"]
+        } == Yum.Migration.merge(Yum.Migration.new(%{
+            "timestamp" => "0",
+            "add" => [{ 1, "a" }, { 2, "b" }],
+            "update" => [{ 3, "c" }, { 4, "d" }],
+            "move" => [{ 5, { "e", "f" } }, { 6, { "g", "h" } }]
+        }), Yum.Migration.new(%{
+            "timestamp" => "1",
+            "delete" => ["b", "d", "h"]
+        }))
+
+        assert %Yum.Migration{
+            timestamp: 1,
             add: [{ 1, "a2" }, { 2, "b" }],
             update: [{ 3, "c2" }, { 4, "d" }],
             move: [{ 5, { "e", "f2" } }, { 6, { "g", "h" } }, {"c", "c2"}]
@@ -173,6 +235,21 @@ defmodule Yum.MigrationTest do
 
         assert %Yum.Migration{
             timestamp: 1,
+            add: [{ 1, "a" }, { 2, "b2" }],
+            update: [{ 3, "c" }, { 4, "d2" }],
+            move: [{ 5, { "e", "f" } }, { 6, { "g", "h2" } }, {"d", "d2"}]
+        } == Yum.Migration.merge(Yum.Migration.new(%{
+            "timestamp" => "0",
+            "add" => [{ 1, "a" }, { 2, "b" }],
+            "update" => [{ 3, "c" }, { 4, "d" }],
+            "move" => [{ 5, { "e", "f" } }, { 6, { "g", "h" } }]
+        }), Yum.Migration.new(%{
+            "timestamp" => "1",
+            "move" => [{ "b", "b2" }, { "d", "d2" }, { "h", "h2" }]
+        }))
+
+        assert %Yum.Migration{
+            timestamp: 1,
             add: [{ 1, "a" }, { 2, "b" }],
             update: [{ 3, "c" }, { 4, "d" }, "f"],
             move: [{ 5, { "e", "f" } }, { 6, { "g", "h" } }]
@@ -184,6 +261,21 @@ defmodule Yum.MigrationTest do
         }), Yum.Migration.new(%{
             "timestamp" => "1",
             "update" => ["a", "c", "f"]
+        }))
+
+        assert %Yum.Migration{
+            timestamp: 1,
+            add: [{ 1, "a" }, { 2, "b" }],
+            update: [{ 3, "c" }, { 4, "d" }, "h"],
+            move: [{ 5, { "e", "f" } }, { 6, { "g", "h" } }]
+        } == Yum.Migration.merge(Yum.Migration.new(%{
+            "timestamp" => "0",
+            "add" => [{ 1, "a" }, { 2, "b" }],
+            "update" => [{ 3, "c" }, { 4, "d" }],
+            "move" => [{ 5, { "e", "f" } }, { 6, { "g", "h" } }]
+        }), Yum.Migration.new(%{
+            "timestamp" => "1",
+            "update" => ["a", "c", "h"]
         }))
 
         assert %Yum.Migration{

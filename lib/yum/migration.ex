@@ -115,7 +115,7 @@ defmodule Yum.Migration do
                     file -> { merged_transactions, [file|removals] }
                 end
             else
-                { [transaction|merged_transactions], [removals] }
+                { [transaction|merged_transactions], removals }
             end
         end)
     end
