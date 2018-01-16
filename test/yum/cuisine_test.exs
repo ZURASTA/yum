@@ -90,33 +90,4 @@ defmodule Yum.CuisineTest do
 
         assert [nil] == Enum.map(Yum.Cuisine.Style.new(cuisines["one"]["foo"]["bar-c"]), &Yum.Cuisine.Style.group_ref/1)
     end
-
-    test "ref_hash/2", %{ cuisines: cuisines } do
-        assert 8 == Enum.count(Enum.uniq(Enum.map(Enum.sort(Yum.Cuisine.Style.new(cuisines), &(&1.ref < &2.ref)), &Yum.Cuisine.Style.ref_hash/1)))
-
-        cuisine_test = List.last(Enum.sort(Yum.Cuisine.Style.new(cuisines), &(&1.ref < &2.ref)))
-
-        assert [Yum.Cuisine.Style.ref_hash(cuisine_test)] != Enum.map(Yum.Cuisine.Style.new(cuisines["one"]["foo"]["bar-c"]), &Yum.Cuisine.Style.group_ref/1)
-        assert Yum.Cuisine.Style.ref_hash(cuisine_test) == Yum.Cuisine.Style.ref_hash(%{ cuisine_test | translation: %{ "en" => %{ "term" => "1" } } })
-    end
-
-    test "ref_encode/2", %{ cuisines: cuisines } do
-        assert 8 == Enum.count(Enum.uniq(Enum.map(Enum.sort(Yum.Cuisine.Style.new(cuisines), &(&1.ref < &2.ref)), &Yum.Cuisine.Style.ref_encode/1)))
-
-        cuisine_test = List.last(Enum.sort(Yum.Cuisine.Style.new(cuisines), &(&1.ref < &2.ref)))
-
-        assert [Yum.Cuisine.Style.ref_encode(cuisine_test)] != Enum.map(Yum.Cuisine.Style.new(cuisines["one"]["foo"]["bar-c"]), &Yum.Cuisine.Style.group_ref/1)
-        assert Yum.Cuisine.Style.ref_encode(cuisine_test) == Yum.Cuisine.Style.ref_encode(%{ cuisine_test | translation: %{ "en" => %{ "term" => "1" } } })
-
-        assert [
-            "/one",
-            "/one/foo",
-            "/one/foo/bar-a",
-            "/one/foo/bar-b",
-            "/one/foo/bar-c",
-            "/one/foo/bar-c/test",
-            "/three",
-            "/three/foo",
-        ] == Enum.map(Enum.map(Enum.sort(Yum.Cuisine.Style.new(cuisines), &(&1.ref < &2.ref)), &Yum.Cuisine.Style.ref_encode/1), &Yum.Cuisine.Style.ref_decode/1)
-    end
 end

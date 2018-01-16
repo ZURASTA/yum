@@ -104,37 +104,4 @@ defmodule Yum.IngredientTest do
 
         assert [nil] == Enum.map(Yum.Ingredient.new(ingredients["three"]["foo"]["bar-c"]), &Yum.Ingredient.group_ref/1)
     end
-
-    test "ref_hash/2", %{ ingredients: ingredients } do
-        assert 12 == Enum.count(Enum.uniq(Enum.map(Enum.sort(Yum.Ingredient.new(ingredients), &(&1.ref < &2.ref)), &Yum.Ingredient.ref_hash/1)))
-
-        ingredient_test = List.last(Enum.sort(Yum.Ingredient.new(ingredients), &(&1.ref < &2.ref)))
-
-        assert [Yum.Ingredient.ref_hash(ingredient_test)] != Enum.map(Yum.Ingredient.new(ingredients["three"]["foo"]["bar-c"]), &Yum.Ingredient.group_ref/1)
-        assert Yum.Ingredient.ref_hash(ingredient_test) == Yum.Ingredient.ref_hash(%{ ingredient_test | translation: %{ "en" => %{ "term" => "1" } } })
-    end
-
-    test "ref_encode/2", %{ ingredients: ingredients } do
-        assert 12 == Enum.count(Enum.uniq(Enum.map(Enum.sort(Yum.Ingredient.new(ingredients), &(&1.ref < &2.ref)), &Yum.Ingredient.ref_encode/1)))
-
-        ingredient_test = List.last(Enum.sort(Yum.Ingredient.new(ingredients), &(&1.ref < &2.ref)))
-
-        assert [Yum.Ingredient.ref_encode(ingredient_test)] != Enum.map(Yum.Ingredient.new(ingredients["three"]["foo"]["bar-c"]), &Yum.Ingredient.group_ref/1)
-        assert Yum.Ingredient.ref_encode(ingredient_test) == Yum.Ingredient.ref_encode(%{ ingredient_test | translation: %{ "en" => %{ "term" => "1" } } })
-
-        assert [
-            "/one",
-            "/one/foo",
-            "/one/foo/bar-a",
-            "/one/foo/bar-b",
-            "/one/foo/bar-c",
-            "/one/foo/bar-c/test",
-            "/three",
-            "/three/foo",
-            "/three/foo/bar-a",
-            "/three/foo/bar-b",
-            "/three/foo/bar-c",
-            "/three/foo/bar-c/test"
-        ] == Enum.map(Enum.map(Enum.sort(Yum.Ingredient.new(ingredients), &(&1.ref < &2.ref)), &Yum.Ingredient.ref_encode/1), &Yum.Ingredient.ref_decode/1)
-    end
 end
