@@ -96,9 +96,22 @@ defmodule Yum.Data do
       Load the allergen names and translations.
 
       Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
     """
-    @spec allergens(String.t) :: allergen_tree
-    def allergens(data), do: load_list(Path.join(data, "allergens"))
+    @spec allergens(String.t | file_filter) :: allergen_tree
+    def allergens(filter) when is_function(filter), do: allergens(path(), filter)
+    def allergens(data), do: allergens(data, &load_all/1)
+
+    @doc """
+      Load the allergen names and translations.
+
+      Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
+    """
+    @spec allergens(String.t, file_filter) :: allergen_tree
+    def allergens(data, filter), do: load_list(Path.join(data, "allergens"), filter)
 
     @doc """
       Reduce the allergen data.
@@ -272,7 +285,7 @@ defmodule Yum.Data do
         |> Enum.reduce(acc, &(fun.(load_migration(&1), &2)))
     end
 
-    defp load_list(path, filter \\ &load_all/1) do
+    defp load_list(path, filter) do
         Path.wildcard(Path.join(path, "*.toml"))
         |> Enum.filter(filter)
         |> Enum.reduce(%{}, fn file, acc ->
