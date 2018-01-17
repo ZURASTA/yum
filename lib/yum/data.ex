@@ -209,8 +209,10 @@ defmodule Yum.Data do
 
       See `reduce_ingredients/4`
     """
-    @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t) :: any
-    def reduce_ingredients(acc, fun, group \\ ""), do: reduce_ingredients(acc, fun, group, path())
+    @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t | file_filter) :: any
+    def reduce_ingredients(acc, fun, group \\ "")
+    def reduce_ingredients(acc, fun, filter) when is_function(filter), do: reduce_ingredients(acc, fun, "", filter)
+    def reduce_ingredients(acc, fun, group), do: reduce_ingredients(acc, fun, group, path())
 
     @doc """
       Reduce the ingredient data.
@@ -222,9 +224,28 @@ defmodule Yum.Data do
       any parent information that should be applied to these child ingredients.
 
       Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t, String.t) :: any
-    def reduce_ingredients(acc, fun, group, data), do: reduce_tree(Path.join([data, "ingredients", group]), acc, fun)
+    @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t, String.t | file_filter) :: any
+    def reduce_ingredients(acc, fun, group, filter) when is_function(filter), do: reduce_ingredients(acc, fun, group, path(), filter)
+    def reduce_ingredients(acc, fun, group, data), do: reduce_ingredients(acc, fun, group, data, &load_all/1)
+
+    @doc """
+      Reduce the ingredient data.
+
+      Each ingredient is passed to `fun` and an updated accumulator is returned.
+
+      If only a particular group of ingredients is required, the path to
+      find these can be provided to `group`. This will however not include
+      any parent information that should be applied to these child ingredients.
+
+      Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
+    """
+    @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t, String.t, file_filter) :: any
+    def reduce_ingredients(acc, fun, group, data, filter), do: reduce_tree(Path.join([data, "ingredients", group]), acc, fun, filter)
 
     @doc """
       Load the cuisine data.
@@ -272,8 +293,10 @@ defmodule Yum.Data do
 
       See `reduce_cuisines/4`
     """
-    @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t) :: any
-    def reduce_cuisines(acc, fun, group \\ ""), do: reduce_cuisines(acc, fun, group, path())
+    @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t | file_filter) :: any
+    def reduce_cuisines(acc, fun, group \\ "")
+    def reduce_cuisines(acc, fun, filter) when is_function(filter), do: reduce_cuisines(acc, fun, "", filter)
+    def reduce_cuisines(acc, fun, group), do: reduce_cuisines(acc, fun, group, path())
 
     @doc """
       Reduce the cuisine data.
@@ -285,9 +308,28 @@ defmodule Yum.Data do
       any parent information that should be applied to these child cuisines.
 
       Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t, String.t) :: any
-    def reduce_cuisines(acc, fun, group, data), do: reduce_tree(Path.join([data, "cuisines", group]), acc, fun)
+    @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t, String.t | file_filter) :: any
+    def reduce_cuisines(acc, fun, group, filter) when is_function(filter), do: reduce_cuisines(acc, fun, group, path(), filter)
+    def reduce_cuisines(acc, fun, group, data), do: reduce_cuisines(acc, fun, group, data, &load_all/1)
+
+    @doc """
+      Reduce the cuisine data.
+
+      Each cuisine is passed to `fun` and an updated accumulator is returned.
+
+      If only a particular group of cuisines is required, the path to
+      find these can be provided to `group`. This will however not include
+      any parent information that should be applied to these child cuisines.
+
+      Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
+    """
+    @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t, String.t, file_filter) :: any
+    def reduce_cuisines(acc, fun, group, data, filter), do: reduce_tree(Path.join([data, "cuisines", group]), acc, fun, filter)
 
     @doc """
       Load the migration data.
@@ -401,8 +443,9 @@ defmodule Yum.Data do
         |> Enum.reduce(acc, &(fun.(load(&1), &2)))
     end
 
-    defp reduce_tree(path, acc, fun) do
+    defp reduce_tree(path, acc, fun, filter) do
         Path.wildcard(Path.join(path, "**/*.toml"))
+        |> Enum.filter(filter)
         |> Enum.reduce({ [], acc }, fn file, { parent, acc } ->
             [name|paths] = Enum.reverse(Path.split(Path.relative_to(file, path)))
 
