@@ -78,9 +78,24 @@ defmodule Yum.Data do
       Each diet is passed to `fun` and an updated accumulator is returned.
 
       Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_diets(any, (diet_info, any -> any), String.t) :: any
-    def reduce_diets(acc, fun, data), do: reduce_list(Path.join(data, "diets"), acc, fun)
+    @spec reduce_diets(any, (diet_info, any -> any), String.t | file_filter) :: any
+    def reduce_diets(acc, fun, filter) when is_function(filter), do: reduce_diets(acc, fun, path(), filter)
+    def reduce_diets(acc, fun, data), do: reduce_diets(acc, fun, data, &load_all/1)
+
+    @doc """
+      Reduce the diet data.
+
+      Each diet is passed to `fun` and an updated accumulator is returned.
+
+      Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
+    """
+    @spec reduce_diets(any, (diet_info, any -> any), String.t, file_filter) :: any
+    def reduce_diets(acc, fun, data, filter), do: reduce_list(Path.join(data, "diets"), acc, fun, filter)
 
     @doc """
       Load the allergen names and translations.
@@ -129,9 +144,24 @@ defmodule Yum.Data do
       Each allergen is passed to `fun` and an updated accumulator is returned.
 
       Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_allergens(any, (allergen_info, any -> any), String.t) :: any
-    def reduce_allergens(acc, fun, data), do: reduce_list(Path.join(data, "allergens"), acc, fun)
+    @spec reduce_allergens(any, (allergen_info, any -> any), String.t | file_filter) :: any
+    def reduce_allergens(acc, fun, filter) when is_function(filter), do: reduce_allergens(acc, fun, path(), filter)
+    def reduce_allergens(acc, fun, data), do: reduce_allergens(acc, fun, data, &load_all/1)
+
+    @doc """
+      Reduce the allergen data.
+
+      Each allergen is passed to `fun` and an updated accumulator is returned.
+
+      Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
+    """
+    @spec reduce_allergens(any, (allergen_info, any -> any), String.t, file_filter) :: any
+    def reduce_allergens(acc, fun, data, filter), do: reduce_list(Path.join(data, "allergens"), acc, fun, filter)
 
     @doc """
       Load the ingredient data.
@@ -330,8 +360,9 @@ defmodule Yum.Data do
 
     defp merge_nested_contents(_key, a, b), do: Map.merge(a, b, &merge_nested_contents/3)
 
-    defp reduce_list(path, acc, fun) do
+    defp reduce_list(path, acc, fun, filter) do
         Path.wildcard(Path.join(path, "*.toml"))
+        |> Enum.filter(filter)
         |> Enum.reduce(acc, &(fun.(load(&1), &2)))
     end
 
