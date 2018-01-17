@@ -170,8 +170,10 @@ defmodule Yum.Data do
 
       See `ingredients/2`.
     """
-    @spec ingredients(String.t) :: ingredient_tree
-    def ingredients(group \\ ""), do: ingredients(group, path())
+    @spec ingredients(String.t | file_filter) :: ingredient_tree
+    def ingredients(group \\ "")
+    def ingredients(filter) when is_function(filter), do: ingredients("", filter)
+    def ingredients(group), do: ingredients(group, path())
 
     @doc """
       Load the ingredient data.
@@ -254,8 +256,10 @@ defmodule Yum.Data do
 
       See `cuisines/2`
     """
-    @spec cuisines(String.t) :: cuisine_tree
-    def cuisines(group \\ ""), do: cuisines(group, path())
+    @spec cuisines(String.t | file_filter) :: cuisine_tree
+    def cuisines(group \\ "")
+    def cuisines(filter) when is_function(filter), do: cuisines("", filter)
+    def cuisines(group), do: cuisines(group, path())
 
     @doc """
       Load the cuisine data.
