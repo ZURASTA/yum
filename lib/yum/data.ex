@@ -181,9 +181,26 @@ defmodule Yum.Data do
       any parent information that should be applied to these child ingredients.
 
       Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
     """
-    @spec ingredients(String.t, String.t) :: ingredient_tree
-    def ingredients(group, data), do: load_tree(Path.join([data, "ingredients", group]))
+    @spec ingredients(String.t, String.t | file_filter) :: ingredient_tree
+    def ingredients(group, filter) when is_function(filter), do: ingredients(group, path(), filter)
+    def ingredients(group, data), do: ingredients(group, data, &load_all/1)
+
+    @doc """
+      Load the ingredient data.
+
+      If only a particular group of ingredients is required, the path to
+      find these can be provided to `group`. This will however not include
+      any parent information that should be applied to these child ingredients.
+
+      Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
+    """
+    @spec ingredients(String.t, String.t, file_filter) :: ingredient_tree
+    def ingredients(group, data, filter), do: load_tree(Path.join([data, "ingredients", group]), filter)
 
     @doc """
       Reduce the ingredient data.
@@ -227,9 +244,26 @@ defmodule Yum.Data do
       any parent information that should be applied to these child cuisines.
 
       Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
     """
-    @spec cuisines(String.t, String.t) :: cuisine_tree
-    def cuisines(group, data), do: load_tree(Path.join([data, "cuisines", group]))
+    @spec cuisines(String.t, String.t | file_filter) :: cuisine_tree
+    def cuisines(group, filter) when is_function(filter), do: cuisines(group, path(), filter)
+    def cuisines(group, data), do: cuisines(group, data, &load_all/1)
+
+    @doc """
+      Load the cuisine data.
+
+      If only a particular group of cuisines is required, the path to
+      find these can be provided to `group`. This will however not include
+      any parent information that should be applied to these child cuisines.
+
+      Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
+    """
+    @spec cuisines(String.t, String.t, file_filter) :: cuisine_tree
+    def cuisines(group, data, filter), do: load_tree(Path.join([data, "cuisines", group]), filter)
 
     @doc """
       Reduce the cuisine data.
@@ -328,8 +362,9 @@ defmodule Yum.Data do
         end)
     end
 
-    defp load_tree(path) do
+    defp load_tree(path, filter) do
         Path.wildcard(Path.join(path, "**/*.toml"))
+        |> Enum.filter(filter)
         |> Enum.reduce(%{}, fn file, acc ->
             [_|paths] = Enum.reverse(Path.split(Path.relative_to(file, path)))
             contents = Enum.reduce([Path.basename(file, ".toml")|paths], %{ __info__: load(file) }, fn name, contents ->
