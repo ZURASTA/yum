@@ -23,10 +23,13 @@ defmodule Yum.Data do
     @type ingredient_tree :: %{ optional(String.t) => ingredient_tree, required(:__info__) => ingredient_info }
     @type cuisine_tree :: %{ optional(String.t) => cuisine_tree, required(:__info__) => cuisine_info }
     @type migration :: %{ optional(String.t) => String.t | { String.t, String.t } }
+    @type file_filter :: ((String.t) -> boolean)
 
     defp load(path), do: TomlElixir.parse_file!(path)
 
     defp path(), do: Application.fetch_env!(:yum, :path)
+
+    defp load_all(_), do: true
 
     @doc """
       Load the diet names and translations.
@@ -42,9 +45,22 @@ defmodule Yum.Data do
       Load the diet names and translations.
 
       Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
     """
-    @spec diets(String.t) :: diet_tree
-    def diets(data), do: load_list(Path.join(data, "diets"))
+    @spec diets(String.t | file_filter) :: diet_tree
+    def diets(filter) when is_function(filter), do: diets(path(), filter)
+    def diets(data), do: diets(data, &load_all/1)
+
+    @doc """
+      Load the diet names and translations.
+
+      Uses the path referenced by `data`.
+
+      The files to be loaded can be filtered by providing a filter.
+    """
+    @spec diets(String.t, file_filter) :: diet_tree
+    def diets(data, filter), do: load_list(Path.join(data, "diets"), filter)
 
     @doc """
       Reduce the diet data.
@@ -256,8 +272,9 @@ defmodule Yum.Data do
         |> Enum.reduce(acc, &(fun.(load_migration(&1), &2)))
     end
 
-    defp load_list(path) do
+    defp load_list(path, filter \\ &load_all/1) do
         Path.wildcard(Path.join(path, "*.toml"))
+        |> Enum.filter(filter)
         |> Enum.reduce(%{}, fn file, acc ->
             [_|paths] = Enum.reverse(Path.split(Path.relative_to(file, path)))
             contents = Enum.reduce([Path.basename(file, ".toml")|paths], load(file), fn name, contents ->
