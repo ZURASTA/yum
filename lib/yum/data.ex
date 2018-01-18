@@ -45,7 +45,7 @@ defmodule Yum.Data do
     defp match_ref(ref, matches), do: String.split(ref, "/", trim: true) |> ref_list([""|matches])
 
     @doc """
-
+      Get a filter that can be used for the given refs.
     """
     @spec ref_filter(String.t | [String.t]) :: file_filter
     def ref_filter(ref) do
@@ -465,13 +465,13 @@ defmodule Yum.Data do
 
     defp reduce_list(path, acc, fun, filter) do
         Path.wildcard(Path.join(path, "*.toml"))
-        |> Enum.filter(filter)
+        |> Enum.filter(&(trim_path_ref(&1, path) |> filter.()))
         |> Enum.reduce(acc, &(fun.(load(&1), &2)))
     end
 
     defp reduce_tree(path, acc, fun, filter) do
         Path.wildcard(Path.join(path, "**/*.toml"))
-        |> Enum.filter(filter)
+        |> Enum.filter(&(trim_path_ref(&1, path) |> filter.()))
         |> Enum.reduce({ [], acc }, fn file, { parent, acc } ->
             [name|paths] = Enum.reverse(Path.split(Path.relative_to(file, path)))
 
