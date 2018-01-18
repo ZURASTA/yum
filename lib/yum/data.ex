@@ -31,6 +31,28 @@ defmodule Yum.Data do
 
     defp load_all(_), do: true
 
+    defp ref_list(groups, list \\ [])
+    defp ref_list([], [_|list]), do: list
+    defp ref_list([group|groups], []), do: ref_list(groups, [group, group])
+    defp ref_list([group|groups], [prev|list]) do
+        ref = prev <> "/" <> group
+        ref_list(groups, [ref, ref|list])
+    end
+
+    defp match_ref(ref, matches \\ [])
+    defp match_ref([], matches), do: matches
+    defp match_ref([ref|list], matches), do: match_ref(list, match_ref(ref, matches))
+    defp match_ref(ref, matches), do: String.split(ref, "/", trim: true) |> ref_list([""|matches])
+
+    @doc """
+
+    """
+    @spec ref_filter(String.t | [String.t]) :: file_filter
+    def ref_filter(ref) do
+        refs = match_ref(ref)
+        &Enum.member?(refs, &1)
+    end
+
     @doc """
       Load the diet names and translations.
 
@@ -397,7 +419,7 @@ defmodule Yum.Data do
 
     defp load_list(path, filter) do
         Path.wildcard(Path.join(path, "*.toml"))
-        |> Enum.filter(filter)
+        |> Enum.filter(&(trim_path_ref(&1, path) |> filter.()))
         |> Enum.reduce(%{}, fn file, acc ->
             [_|paths] = Enum.reverse(Path.split(Path.relative_to(file, path)))
             contents = Enum.reduce([Path.basename(file, ".toml")|paths], load(file), fn name, contents ->
@@ -410,7 +432,7 @@ defmodule Yum.Data do
 
     defp load_tree(path, filter) do
         Path.wildcard(Path.join(path, "**/*.toml"))
-        |> Enum.filter(filter)
+        |> Enum.filter(&(trim_path_ref(&1, path) |> filter.()))
         |> Enum.reduce(%{}, fn file, acc ->
             [_|paths] = Enum.reverse(Path.split(Path.relative_to(file, path)))
             contents = Enum.reduce([Path.basename(file, ".toml")|paths], %{ __info__: load(file) }, fn name, contents ->
@@ -470,4 +492,6 @@ defmodule Yum.Data do
     defp filename(file), do: Path.basename(file) |> Path.rootname
 
     defp to_timestamp(file), do: filename(file) |> String.to_integer
+
+    defp trim_path_ref(ref, path), do: String.replace_prefix(ref, path, "") |> String.replace_suffix(".toml", "")
 end
