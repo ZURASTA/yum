@@ -91,7 +91,7 @@ defmodule Yum.Data do
 
       See `reduce_diets/3`.
     """
-    @spec reduce_diets(any, (diet_info, any -> any)) :: any
+    @spec reduce_diets(any, ({ String.t, diet_info }, any -> any)) :: any
     def reduce_diets(acc, fun), do: reduce_diets(acc, fun, path())
 
     @doc """
@@ -103,7 +103,7 @@ defmodule Yum.Data do
 
       The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_diets(any, (diet_info, any -> any), String.t | file_filter) :: any
+    @spec reduce_diets(any, ({ String.t, diet_info }, any -> any), String.t | file_filter) :: any
     def reduce_diets(acc, fun, filter) when is_function(filter), do: reduce_diets(acc, fun, path(), filter)
     def reduce_diets(acc, fun, data), do: reduce_diets(acc, fun, data, &load_all/1)
 
@@ -116,7 +116,7 @@ defmodule Yum.Data do
 
       The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_diets(any, (diet_info, any -> any), String.t, file_filter) :: any
+    @spec reduce_diets(any, ({ String.t, diet_info }, any -> any), String.t, file_filter) :: any
     def reduce_diets(acc, fun, data, filter), do: reduce_list(Path.join(data, "diets"), acc, fun, filter)
 
     @doc """
@@ -157,7 +157,7 @@ defmodule Yum.Data do
 
       See `reduce_allergens/3`.
     """
-    @spec reduce_allergens(any, (allergen_info, any -> any)) :: any
+    @spec reduce_allergens(any, ({ String.t, allergen_info }, any -> any)) :: any
     def reduce_allergens(acc, fun), do: reduce_allergens(acc, fun, path())
 
     @doc """
@@ -169,7 +169,7 @@ defmodule Yum.Data do
 
       The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_allergens(any, (allergen_info, any -> any), String.t | file_filter) :: any
+    @spec reduce_allergens(any, ({ String.t, allergen_info }, any -> any), String.t | file_filter) :: any
     def reduce_allergens(acc, fun, filter) when is_function(filter), do: reduce_allergens(acc, fun, path(), filter)
     def reduce_allergens(acc, fun, data), do: reduce_allergens(acc, fun, data, &load_all/1)
 
@@ -182,7 +182,7 @@ defmodule Yum.Data do
 
       The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_allergens(any, (allergen_info, any -> any), String.t, file_filter) :: any
+    @spec reduce_allergens(any, ({ String.t, allergen_info }, any -> any), String.t, file_filter) :: any
     def reduce_allergens(acc, fun, data, filter), do: reduce_list(Path.join(data, "allergens"), acc, fun, filter)
 
     @doc """
@@ -233,7 +233,7 @@ defmodule Yum.Data do
 
       See `reduce_ingredients/4`
     """
-    @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t | file_filter) :: any
+    @spec reduce_ingredients(any, ({ String.t, ingredient_info }, [{ String.t, ingredient_info }], any -> any), String.t | file_filter) :: any
     def reduce_ingredients(acc, fun, group \\ "")
     def reduce_ingredients(acc, fun, filter) when is_function(filter), do: reduce_ingredients(acc, fun, "", filter)
     def reduce_ingredients(acc, fun, group), do: reduce_ingredients(acc, fun, group, path())
@@ -251,7 +251,7 @@ defmodule Yum.Data do
 
       The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t, String.t | file_filter) :: any
+    @spec reduce_ingredients(any, ({ String.t, ingredient_info }, [{ String.t, ingredient_info }], any -> any), String.t, String.t | file_filter) :: any
     def reduce_ingredients(acc, fun, group, filter) when is_function(filter), do: reduce_ingredients(acc, fun, group, path(), filter)
     def reduce_ingredients(acc, fun, group, data), do: reduce_ingredients(acc, fun, group, data, &load_all/1)
 
@@ -268,7 +268,7 @@ defmodule Yum.Data do
 
       The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_ingredients(any, (ingredient_info, [{ String.t, ingredient_info }], any -> any), String.t, String.t, file_filter) :: any
+    @spec reduce_ingredients(any, ({ String.t, ingredient_info }, [{ String.t, ingredient_info }], any -> any), String.t, String.t, file_filter) :: any
     def reduce_ingredients(acc, fun, group, data, filter), do: reduce_tree(Path.join([data, "ingredients", group]), acc, fun, filter)
 
     @doc """
@@ -319,7 +319,7 @@ defmodule Yum.Data do
 
       See `reduce_cuisines/4`
     """
-    @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t | file_filter) :: any
+    @spec reduce_cuisines(any, ({ String.t, cuisine_info }, [{ String.t, cuisine_info }], any -> any), String.t | file_filter) :: any
     def reduce_cuisines(acc, fun, group \\ "")
     def reduce_cuisines(acc, fun, filter) when is_function(filter), do: reduce_cuisines(acc, fun, "", filter)
     def reduce_cuisines(acc, fun, group), do: reduce_cuisines(acc, fun, group, path())
@@ -337,7 +337,7 @@ defmodule Yum.Data do
 
       The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t, String.t | file_filter) :: any
+    @spec reduce_cuisines(any, ({ String.t, cuisine_info }, [{ String.t, cuisine_info }], any -> any), String.t, String.t | file_filter) :: any
     def reduce_cuisines(acc, fun, group, filter) when is_function(filter), do: reduce_cuisines(acc, fun, group, path(), filter)
     def reduce_cuisines(acc, fun, group, data), do: reduce_cuisines(acc, fun, group, data, &load_all/1)
 
@@ -354,7 +354,7 @@ defmodule Yum.Data do
 
       The files to be loaded can be filtered by providing a filter.
     """
-    @spec reduce_cuisines(any, (cuisine_info, [{ String.t, cuisine_info }], any -> any), String.t, String.t, file_filter) :: any
+    @spec reduce_cuisines(any, ({ String.t, cuisine_info }, [{ String.t, cuisine_info }], any -> any), String.t, String.t, file_filter) :: any
     def reduce_cuisines(acc, fun, group, data, filter), do: reduce_tree(Path.join([data, "cuisines", group]), acc, fun, filter)
 
     @doc """
@@ -466,7 +466,7 @@ defmodule Yum.Data do
     defp reduce_list(path, acc, fun, filter) do
         Path.wildcard(Path.join(path, "*.toml"))
         |> Enum.filter(&(trim_path_ref(&1, path) |> filter.()))
-        |> Enum.reduce(acc, &(fun.(load(&1), &2)))
+        |> Enum.reduce(acc, &(fun.({ Path.basename(&1, ".toml"), load(&1) }, &2)))
     end
 
     defp reduce_tree(path, acc, fun, filter) do
@@ -477,9 +477,10 @@ defmodule Yum.Data do
 
             parent = remove_stale_nodes(parent, paths)
             data = load(file)
-            acc = fun.(data, parent, acc)
+            tagged_data = { Path.basename(name, ".toml"), data }
+            acc = fun.(tagged_data, parent, acc)
 
-            { [{ Path.basename(name, ".toml"), data }|parent], acc }
+            { [tagged_data|parent], acc }
         end)
         |> elem(1)
     end
