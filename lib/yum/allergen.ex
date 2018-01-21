@@ -2,7 +2,6 @@ defmodule Yum.Allergen do
     @moduledoc """
       A struct that contains all the data about a allergen.
     """
-    use Bitwise
 
     defstruct [
         ref: nil,

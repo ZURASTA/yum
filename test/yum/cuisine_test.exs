@@ -60,34 +60,4 @@ defmodule Yum.CuisineTest do
         assert [] == Yum.Cuisine.Style.new(%{})
         assert [%Yum.Cuisine.Style{ ref: "/test", type: :province }] == Yum.Cuisine.Style.new(cuisines["one"]["foo"]["bar-c"])
     end
-
-    test "name/1", %{ cuisines: cuisines } do
-        assert [
-            "one",
-            "foo",
-            "bar-a",
-            "bar-b",
-            "bar-c",
-            "test",
-            "three",
-            "foo",
-        ] == Enum.map(Enum.sort(Yum.Cuisine.Style.new(cuisines), &(&1.ref < &2.ref)), &Yum.Cuisine.Style.name/1)
-
-        assert ["test"] == Enum.map(Yum.Cuisine.Style.new(cuisines["one"]["foo"]["bar-c"]), &Yum.Cuisine.Style.name/1)
-    end
-
-    test "group_ref/1", %{ cuisines: cuisines } do
-        assert [
-            nil,
-            "/one",
-            "/one/foo",
-            "/one/foo",
-            "/one/foo",
-            "/one/foo/bar-c",
-            nil,
-            "/three",
-        ] == Enum.map(Enum.sort(Yum.Cuisine.Style.new(cuisines), &(&1.ref < &2.ref)), &Yum.Cuisine.Style.group_ref/1)
-
-        assert [nil] == Enum.map(Yum.Cuisine.Style.new(cuisines["one"]["foo"]["bar-c"]), &Yum.Cuisine.Style.group_ref/1)
-    end
 end

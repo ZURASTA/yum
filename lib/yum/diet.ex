@@ -2,7 +2,6 @@ defmodule Yum.Diet do
     @moduledoc """
       A struct that contains all the data about a diet.
     """
-    use Bitwise
 
     defstruct [
         ref: nil,

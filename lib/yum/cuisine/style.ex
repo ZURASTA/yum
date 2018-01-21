@@ -2,7 +2,6 @@ defmodule Yum.Cuisine.Style do
     @moduledoc """
       A struct that contains all the data about a cuisine style.
     """
-    use Bitwise
 
     defstruct [
         ref: nil,
@@ -46,30 +45,4 @@ defmodule Yum.Cuisine.Style do
 
     defp new_foods(style, %{ "cuisine" => foods }), do: %{ style | foods: Yum.Cuisine.Food.new(foods) }
     defp new_foods(style, _), do: style
-
-    defp create_parent_ref([_|groups]), do: create_parent_ref(groups, "")
-
-    defp create_parent_ref([_], ""), do: nil
-    defp create_parent_ref([_], ref), do: ref
-    defp create_parent_ref([current|groups], ref), do: create_parent_ref(groups, "#{ref}/#{current}")
-
-    @doc """
-      Get the parent ref.
-
-      This can be used to either refer to the parent or find the parent.
-    """
-    @spec group_ref(t) :: String.t | nil
-    def group_ref(%Yum.Cuisine.Style{ ref: ref }) do
-        String.split(ref, "/")
-        |> create_parent_ref
-    end
-
-    @doc """
-      Get the reference name of the cuisine style.
-    """
-    @spec name(t) :: String.t
-    def name(%Yum.Cuisine.Style{ ref: ref }) do
-        String.split(ref, "/")
-        |> List.last
-    end
 end

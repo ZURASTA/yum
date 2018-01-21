@@ -2,7 +2,6 @@ defmodule Yum.Ingredient do
     @moduledoc """
       A struct that contains all the data about an ingredient.
     """
-    use Bitwise
 
     defstruct [
         ref: nil,
@@ -45,30 +44,4 @@ defmodule Yum.Ingredient do
 
     defp new_nutrition(ingredient, %{ "nutrition" => nutrition }), do: %{ ingredient | nutrition: nutrition }
     defp new_nutrition(ingredient, _), do: ingredient
-
-    defp create_parent_ref([_|groups]), do: create_parent_ref(groups, "")
-
-    defp create_parent_ref([_], ""), do: nil
-    defp create_parent_ref([_], ref), do: ref
-    defp create_parent_ref([current|groups], ref), do: create_parent_ref(groups, "#{ref}/#{current}")
-
-    @doc """
-      Get the parent ref.
-
-      This can be used to either refer to the parent or find the parent.
-    """
-    @spec group_ref(t) :: String.t | nil
-    def group_ref(%Yum.Ingredient{ ref: ref }) do
-        String.split(ref, "/")
-        |> create_parent_ref
-    end
-
-    @doc """
-      Get the reference name of the ingredient.
-    """
-    @spec name(t) :: String.t
-    def name(%Yum.Ingredient{ ref: ref }) do
-        String.split(ref, "/")
-        |> List.last
-    end
 end

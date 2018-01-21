@@ -37,25 +37,12 @@ defmodule Yum.Data do
 
     defp load_all(_), do: true
 
-    defp ref_list(groups, list \\ [])
-    defp ref_list([], [_|list]), do: list
-    defp ref_list([group|groups], []), do: ref_list(groups, [group, group])
-    defp ref_list([group|groups], [prev|list]) do
-        ref = prev <> "/" <> group
-        ref_list(groups, [ref, ref|list])
-    end
-
-    defp match_ref(ref, matches \\ [])
-    defp match_ref([], matches), do: matches
-    defp match_ref([ref|list], matches), do: match_ref(list, match_ref(ref, matches))
-    defp match_ref(ref, matches), do: String.split(ref, "/", trim: true) |> ref_list([""|matches])
-
     @doc """
       Get a filter that can be used for the given refs.
     """
     @spec ref_filter(String.t | [String.t]) :: file_filter
     def ref_filter(ref) do
-        refs = match_ref(ref)
+        refs = Yum.Util.match_ref(ref)
         &Enum.member?(refs, &1)
     end
 

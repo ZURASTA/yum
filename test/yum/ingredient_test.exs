@@ -66,42 +66,4 @@ defmodule Yum.IngredientTest do
         assert [] == Yum.Ingredient.new(%{})
         assert [%Yum.Ingredient{ ref: "/test" }] == Yum.Ingredient.new(ingredients["three"]["foo"]["bar-c"])
     end
-
-    test "name/1", %{ ingredients: ingredients } do
-        assert [
-            "one",
-            "foo",
-            "bar-a",
-            "bar-b",
-            "bar-c",
-            "test",
-            "three",
-            "foo",
-            "bar-a",
-            "bar-b",
-            "bar-c",
-            "test"
-        ] == Enum.map(Enum.sort(Yum.Ingredient.new(ingredients), &(&1.ref < &2.ref)), &Yum.Ingredient.name/1)
-
-        assert ["test"] == Enum.map(Yum.Ingredient.new(ingredients["three"]["foo"]["bar-c"]), &Yum.Ingredient.name/1)
-    end
-
-    test "group_ref/1", %{ ingredients: ingredients } do
-        assert [
-            nil,
-            "/one",
-            "/one/foo",
-            "/one/foo",
-            "/one/foo",
-            "/one/foo/bar-c",
-            nil,
-            "/three",
-            "/three/foo",
-            "/three/foo",
-            "/three/foo",
-            "/three/foo/bar-c",
-        ] == Enum.map(Enum.sort(Yum.Ingredient.new(ingredients), &(&1.ref < &2.ref)), &Yum.Ingredient.group_ref/1)
-
-        assert [nil] == Enum.map(Yum.Ingredient.new(ingredients["three"]["foo"]["bar-c"]), &Yum.Ingredient.group_ref/1)
-    end
 end

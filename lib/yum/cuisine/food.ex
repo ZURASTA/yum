@@ -2,7 +2,6 @@ defmodule Yum.Cuisine.Food do
     @moduledoc """
       A struct that contains all the data about food type.
     """
-    use Bitwise
 
     defstruct [
         ref: nil,
