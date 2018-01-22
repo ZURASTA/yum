@@ -295,10 +295,62 @@ defmodule Yum.DataTest do
         ingredients = Yum.Data.ingredients()
         assert tree_counter(ingredients) == Enum.count(Yum.Ingredient.new(ingredients))
         assert expected_ingredients == ingredients
+
+        assert Map.new(Enum.filter(ingredients, &(elem(&1, 0) == "vegetables"))) == Yum.Data.ingredients(&(String.contains?(&1, "vegetables")))
+        assert Map.new(Enum.filter(ingredients, &(elem(&1, 0) == "vegetables"))) == Yum.Data.ingredients("", &(String.contains?(&1, "vegetables")))
+        assert Map.new(Enum.filter(ingredients, &(elem(&1, 0) == "vegetables"))) == Yum.Data.ingredients("", "test/data/Food-Data", &(String.contains?(&1, "vegetables")))
+
+        assert %{ "vegetables" => Map.new(Enum.filter(ingredients["vegetables"], &(elem(&1, 0) == "tubers"))) } == Yum.Data.ingredients(&(String.contains?(&1, "vegetables/tubers")))
+        assert %{ "vegetables" => Map.new(Enum.filter(ingredients["vegetables"], &(elem(&1, 0) == "tomato"))) } == Yum.Data.ingredients(&(String.contains?(&1, "vegetables/tomato")))
+        assert %{ "vegetables" => Map.new(Enum.filter(ingredients["vegetables"], &(elem(&1, 0) in ["tomato", :__info__]))) } == Yum.Data.ingredients(Yum.Data.ref_filter("vegetables/tomato"))
+
+        assert Map.delete(ingredients["vegetables"], :__info__) == Yum.Data.ingredients("vegetables")
+        assert Map.delete(ingredients["vegetables"], :__info__) == Yum.Data.ingredients("vegetables", "test/data/Food-Data")
+        assert Map.delete(ingredients["vegetables"]["tubers"], :__info__) == Yum.Data.ingredients("vegetables/tubers")
+        assert Map.delete(ingredients["vegetables"]["tomato"], :__info__) == Yum.Data.ingredients("vegetables/tomato")
+
+        assert ingredients == Yum.Data.ingredients("", "test/data/Food-Data")
+        assert %{} == Yum.Data.ingredients("", __DIR__)
     end
 
     test "reducing ingredients" do
-        assert Yum.Data.reduce_ingredients(0, fn _, _, acc -> acc + 1 end) == tree_counter(Yum.Data.ingredients())
+        ingredients = Yum.Data.ingredients()
+        counter = fn _, _, acc -> acc + 1 end
+        assert Yum.Data.reduce_ingredients(0, counter) == tree_counter(ingredients)
+        assert Yum.Data.reduce_ingredients(10, counter) == 10 + tree_counter(ingredients)
+
+        get_list = fn i, _, list -> [i|list] end
+
+        all_vegetables = [
+            { "potato", ingredients["vegetables"]["tubers"]["potato"][:__info__] },
+            { "tubers", ingredients["vegetables"]["tubers"][:__info__] },
+            { "tomato", ingredients["vegetables"]["tomato"][:__info__] },
+            { "spring-onion", ingredients["vegetables"]["spring-onion"][:__info__] },
+            { "vegetables", ingredients["vegetables"][:__info__] }
+        ]
+        assert all_vegetables == Yum.Data.reduce_ingredients([], get_list, &(String.contains?(&1, "vegetables")))
+        assert all_vegetables == Yum.Data.reduce_ingredients([], get_list, "", &(String.contains?(&1, "vegetables")))
+        assert all_vegetables == Yum.Data.reduce_ingredients([], get_list, "", "test/data/Food-Data", &(String.contains?(&1, "vegetables")))
+
+        assert [
+            { "potato", ingredients["vegetables"]["tubers"]["potato"][:__info__] },
+            { "tubers", ingredients["vegetables"]["tubers"][:__info__] }
+        ] == Yum.Data.reduce_ingredients([], get_list, &(String.contains?(&1, "vegetables/tubers")))
+        assert [{ "tomato", ingredients["vegetables"]["tomato"][:__info__] }] == Yum.Data.reduce_ingredients([], get_list, &(String.contains?(&1, "vegetables/tomato")))
+        assert [
+            { "tomato", ingredients["vegetables"]["tomato"][:__info__] },
+            { "vegetables", ingredients["vegetables"][:__info__] }
+        ] == Yum.Data.reduce_ingredients([], get_list, Yum.Data.ref_filter("vegetables/tomato"))
+
+        sub_vegetables = Enum.take(all_vegetables, Enum.count(all_vegetables) - 1)
+        assert sub_vegetables == Yum.Data.reduce_ingredients([], get_list, "vegetables")
+        assert sub_vegetables == Yum.Data.reduce_ingredients([], get_list, "vegetables", "test/data/Food-Data")
+        assert [{ "potato", ingredients["vegetables"]["tubers"]["potato"][:__info__] }] == Yum.Data.reduce_ingredients([], get_list, "vegetables/tubers")
+        assert [] == Yum.Data.reduce_ingredients([], get_list, "vegetables/tomato")
+
+        assert tree_counter(ingredients) == Yum.Data.reduce_ingredients(0, counter, "", "test/data/Food-Data")
+        assert 0 == Yum.Data.reduce_ingredients(0, counter, "", __DIR__)
+
     end
 
     test "loading ingredient migrations", %{ migrations: %{ ingredients: expected_migrations } } do
@@ -314,10 +366,60 @@ defmodule Yum.DataTest do
         cuisines = Yum.Data.cuisines()
         assert tree_counter(cuisines) == Enum.count(Yum.Cuisine.Style.new(cuisines))
         assert expected_cuisines == cuisines
+
+        assert Map.new(Enum.filter(cuisines, &(elem(&1, 0) == "african"))) == Yum.Data.cuisines(&(String.contains?(&1, "african")))
+        assert Map.new(Enum.filter(cuisines, &(elem(&1, 0) == "african"))) == Yum.Data.cuisines("", &(String.contains?(&1, "african")))
+        assert Map.new(Enum.filter(cuisines, &(elem(&1, 0) == "african"))) == Yum.Data.cuisines("", "test/data/Food-Data", &(String.contains?(&1, "african")))
+
+        assert %{ "african" => Map.new(Enum.filter(cuisines["african"], &(elem(&1, 0) == "central-african"))) } == Yum.Data.cuisines(&(String.contains?(&1, "african/central-african")))
+        assert %{ "african" => Map.new(Enum.filter(cuisines["african"], &(elem(&1, 0) == "west-african"))) } == Yum.Data.cuisines(&(String.contains?(&1, "african/west-african")))
+        assert %{ "african" => Map.new(Enum.filter(cuisines["african"], &(elem(&1, 0) in ["west-african", :__info__]))) } == Yum.Data.cuisines(Yum.Data.ref_filter("african/west-african"))
+
+        assert Map.delete(cuisines["african"], :__info__) == Yum.Data.cuisines("african")
+        assert Map.delete(cuisines["african"], :__info__) == Yum.Data.cuisines("african", "test/data/Food-Data")
+        assert Map.delete(cuisines["african"]["central-african"], :__info__) == Yum.Data.cuisines("african/central-african")
+        assert Map.delete(cuisines["african"]["west-african"], :__info__) == Yum.Data.cuisines("african/west-african")
+
+        assert cuisines == Yum.Data.cuisines("", "test/data/Food-Data")
+        assert %{} == Yum.Data.cuisines("", __DIR__)
     end
 
     test "reducing cuisines" do
-        assert Yum.Data.reduce_cuisines(0, fn _, _, acc -> acc + 1 end) == tree_counter(Yum.Data.cuisines())
+        cuisines = Yum.Data.cuisines()
+        counter = fn _, _, acc -> acc + 1 end
+        assert Yum.Data.reduce_cuisines(0, counter) == tree_counter(cuisines)
+        assert Yum.Data.reduce_cuisines(10, counter) == 10 + tree_counter(cuisines)
+
+        get_list = fn i, _, list -> [i|list] end
+
+        all_africa = [
+            { "west-african", cuisines["african"]["west-african"][:__info__] },
+            { "southern-african", cuisines["african"]["southern-african"][:__info__] },
+            { "north-african", cuisines["african"]["north-african"][:__info__] },
+            { "horn-african", cuisines["african"]["horn-african"][:__info__] },
+            { "east-african", cuisines["african"]["east-african"][:__info__] },
+            { "central-african", cuisines["african"]["central-african"][:__info__] },
+            { "african", cuisines["african"][:__info__] }
+        ]
+        assert all_africa == Yum.Data.reduce_cuisines([], get_list, &(String.contains?(&1, "african")))
+        assert all_africa == Yum.Data.reduce_cuisines([], get_list, "", &(String.contains?(&1, "african")))
+        assert all_africa == Yum.Data.reduce_cuisines([], get_list, "", "test/data/Food-Data", &(String.contains?(&1, "african")))
+
+        assert [{ "central-african", cuisines["african"]["central-african"][:__info__] }] == Yum.Data.reduce_cuisines([], get_list, &(String.contains?(&1, "african/central-african")))
+        assert [{ "west-african", cuisines["african"]["west-african"][:__info__] }] == Yum.Data.reduce_cuisines([], get_list, &(String.contains?(&1, "african/west-african")))
+        assert [
+            { "west-african", cuisines["african"]["west-african"][:__info__] },
+            { "african", cuisines["african"][:__info__] }
+        ] == Yum.Data.reduce_cuisines([], get_list, Yum.Data.ref_filter("african/west-african"))
+
+        subregion_africa = Enum.take(all_africa, Enum.count(all_africa) - 1)
+        assert subregion_africa == Yum.Data.reduce_cuisines([], get_list, "african")
+        assert subregion_africa == Yum.Data.reduce_cuisines([], get_list, "african", "test/data/Food-Data")
+        assert [] == Yum.Data.reduce_cuisines([], get_list, "african/central-african")
+        assert [] == Yum.Data.reduce_cuisines([], get_list, "african/west-african")
+
+        assert tree_counter(cuisines) == Yum.Data.reduce_cuisines(0, counter, "", "test/data/Food-Data")
+        assert 0 == Yum.Data.reduce_cuisines(0, counter, "", __DIR__)
     end
 
     test "loading cuisine migrations", %{ migrations: %{ cuisines: expected_migrations } } do
@@ -333,10 +435,35 @@ defmodule Yum.DataTest do
         diets = Yum.Data.diets()
         assert Enum.count(diets) == Enum.count(Yum.Diet.new(diets))
         assert expected_diets == diets
+
+        assert Map.new(Enum.filter(diets, &String.contains?(elem(&1, 0), "vegan"))) == Yum.Data.diets(&(String.contains?(&1, "vegan")))
+        assert Map.new(Enum.filter(diets, &String.contains?(elem(&1, 0), "vegan"))) == Yum.Data.diets("test/data/Food-Data", &(String.contains?(&1, "vegan")))
+
+        assert Map.new(Enum.filter(diets, &(elem(&1, 0) == "vegan"))) == Yum.Data.diets(Yum.Data.ref_filter("vegan"))
+
+        assert diets == Yum.Data.diets("test/data/Food-Data")
+        assert %{} == Yum.Data.diets(__DIR__)
     end
 
     test "reducing diets" do
-        assert Yum.Data.reduce_diets(0, fn _, acc -> acc + 1 end) == Enum.count(Yum.Data.diets())
+        diets = Yum.Data.diets()
+        counter = fn _, acc -> acc + 1 end
+        assert Yum.Data.reduce_diets(0, counter) == Enum.count(diets)
+        assert Yum.Data.reduce_diets(10, counter) == 10 + Enum.count(diets)
+
+        get_list = fn i, list -> [i|list] end
+
+        all_vegan = [
+            { "vegan", diets["vegan"] },
+            { "raw-vegan", diets["raw-vegan"] }
+        ]
+        assert all_vegan == Yum.Data.reduce_diets([], get_list, &(String.contains?(&1, "vegan")))
+        assert all_vegan == Yum.Data.reduce_diets([], get_list, "test/data/Food-Data", &(String.contains?(&1, "vegan")))
+
+        assert [{ "vegan", diets["vegan"] }] == Yum.Data.reduce_diets([], get_list, Yum.Data.ref_filter("vegan"))
+
+        assert Enum.count(diets) == Yum.Data.reduce_diets(0, counter, "test/data/Food-Data")
+        assert 0 == Yum.Data.reduce_diets(0, counter, "", __DIR__)
     end
 
     test "loading diet migrations", %{ migrations: %{ diets: expected_migrations } } do
@@ -352,10 +479,36 @@ defmodule Yum.DataTest do
         allergens = Yum.Data.allergens()
         assert Enum.count(allergens) == Enum.count(Yum.Allergen.new(allergens))
         assert expected_allergens == allergens
+
+        assert Map.new(Enum.filter(allergens, &String.contains?(elem(&1, 0), "peanut"))) == Yum.Data.allergens(&(String.contains?(&1, "peanut")))
+        assert Map.new(Enum.filter(allergens, &String.contains?(elem(&1, 0), "peanut"))) == Yum.Data.allergens("test/data/Food-Data", &(String.contains?(&1, "peanut")))
+
+        assert Map.new(Enum.filter(allergens, &(elem(&1, 0) == "peanut"))) == Yum.Data.allergens(Yum.Data.ref_filter("peanut"))
+
+        assert allergens == Yum.Data.allergens("test/data/Food-Data")
+        assert %{} == Yum.Data.allergens(__DIR__)
     end
 
     test "reducing allergens" do
-        assert Yum.Data.reduce_allergens(0, fn _, acc -> acc + 1 end) == Enum.count(Yum.Data.allergens())
+        allergens = Yum.Data.allergens()
+        counter = fn _, acc -> acc + 1 end
+        assert Yum.Data.reduce_allergens(0, counter) == Enum.count(allergens)
+        assert Yum.Data.reduce_allergens(10, counter) == 10 + Enum.count(allergens)
+
+        get_list = fn i, list -> [i|list] end
+
+        all_nut = [
+            { "tree-nut", allergens["tree-nut"] },
+            { "peanut", allergens["peanut"] }
+        ]
+        assert all_nut == Yum.Data.reduce_allergens([], get_list, &(String.contains?(&1, "nut")))
+        assert all_nut == Yum.Data.reduce_allergens([], get_list, "test/data/Food-Data", &(String.contains?(&1, "nut")))
+
+        assert [] == Yum.Data.reduce_allergens([], get_list, Yum.Data.ref_filter("nut"))
+        assert [{ "peanut", allergens["peanut"] }] == Yum.Data.reduce_allergens([], get_list, Yum.Data.ref_filter("peanut"))
+
+        assert Enum.count(allergens) == Yum.Data.reduce_allergens(0, counter, "test/data/Food-Data")
+        assert 0 == Yum.Data.reduce_allergens(0, counter, "", __DIR__)
     end
 
     test "loading allergen migrations", %{ migrations: %{ allergens: expected_migrations } } do
