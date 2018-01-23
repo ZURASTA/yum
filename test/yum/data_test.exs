@@ -350,7 +350,6 @@ defmodule Yum.DataTest do
 
         assert tree_counter(ingredients) == Yum.Data.reduce_ingredients(0, counter, "", "test/data/Food-Data")
         assert 0 == Yum.Data.reduce_ingredients(0, counter, "", __DIR__)
-
     end
 
     test "loading ingredient migrations", %{ migrations: %{ ingredients: expected_migrations } } do
