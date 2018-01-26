@@ -14,7 +14,7 @@ defmodule Yum.Cuisine.Style do
     @type t :: %Yum.Cuisine.Style{ ref: String.t, type: kind, translation: Yum.Data.translation_tree, foods: [%Yum.Cuisine.Food{}] }
 
     @doc """
-      Flatten an cuisine tree into an cuisine style list.
+      Flatten an cuisine tree into a cuisine style list.
 
       Each item in the list can be safely operated on individually, as all of the
       data related to that item is inside of its struct (compared to the original
