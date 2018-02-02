@@ -120,7 +120,10 @@ defmodule Yum.DataTest do
                     "southern-european" => %{
                         :__info__ => %{ "translation" => %{ "en" => %{ "adj" => "southern european", "term" => "southern europe" } }, "type" => "subregion" },
                         "italian" => %{
-                            __info__: %{ "cuisine" => %{ "pizza" => %{ "translation" => %{ "en" => %{ "term" => "pizza" } } } }, "translation" => %{ "en" => %{ "adj" => "italian", "term" => "italy" } }, "type" => "country" }
+                            :__info__ => %{ "translation" => %{ "en" => %{ "adj" => "italian", "term" => "italy" } }, "type" => "country" },
+                            "pizza" => %{
+                                __info__: %{ "translation" => %{ "en" => %{ "term" => "pizza" } }, "type" => "dish" }
+                            }
                         }
                     },
                     "western-european" => %{
@@ -235,6 +238,15 @@ defmodule Yum.DataTest do
                             "oceanian/melanesian",
                             "oceanian/micronesian",
                             "oceanian/polynesian"
+                        ]
+                    },
+                    %{
+                        "timestamp" => "1",
+                        "add" => [
+                            "european/southern-european/italian/pizza"
+                        ],
+                        "update" => [
+                            "european/southern-european/italian"
                         ]
                     }
                 ],
@@ -363,7 +375,7 @@ defmodule Yum.DataTest do
 
     test "loading cuisines", %{ cuisines: expected_cuisines } do
         cuisines = Yum.Data.cuisines()
-        assert tree_counter(cuisines) == Enum.count(Yum.Cuisine.Style.new(cuisines))
+        assert tree_counter(cuisines) == Enum.count(Yum.Cuisine.new(cuisines))
         assert expected_cuisines == cuisines
 
         assert Map.new(Enum.filter(cuisines, &(elem(&1, 0) == "african"))) == Yum.Data.cuisines(&(String.contains?(&1, "african")))

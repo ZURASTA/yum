@@ -17,9 +17,8 @@ defmodule Yum.Data do
     @type allergen_info :: %{ optional(String.t) => translation_tree }
     @type allergen_tree :: %{ optional(String.t) => allergen_info }
     @type nutrition :: %{ optional(String.t) => any }
-    @type food_list :: %{ optional(String.t) => translation_tree }
     @type ingredient_info :: %{ optional(String.t) => translation_tree | diet_list | allergen_list | nutrition }
-    @type cuisine_info :: %{ optional(String.t) => translation_tree | food_list }
+    @type cuisine_info :: %{ optional(String.t) => translation_tree | String.t }
     @type ingredient_tree :: %{ optional(String.t) => ingredient_tree, required(:__info__) => ingredient_info }
     @type cuisine_tree :: %{ optional(String.t) => cuisine_tree, required(:__info__) => cuisine_info }
     @type migration :: %{ optional(String.t) => String.t | { String.t, String.t } }
