@@ -200,3 +200,57 @@ iex(6)> Yum.Util.name "/vegetables/tubers"
 iex(7)> Yum.Util.group_ref "/vegetables/tubers"
 "/vegetables"
 ```
+
+
+Migrations
+----------
+
+The library provides some functions for more efficiently working with migrations.
+
+#### Transactions
+
+Handling migrations can be done easily using transactions (`Yum.Migration.transactions/1`) which are a list of operations ordered in the order they should be handled to correctly migrate the data.
+
+```elixir
+iex(1)> Yum.Migration.transactions %Yum.Migration{
+...(1)>     timestamp: 1,
+...(1)>     add: ["a", "b"],
+...(1)>     update: ["c", "d"],
+...(1)>     move: [{ "e", "f" }, { "g", "h" }],
+...(1)>     delete: ["i", "j"]
+...(1)> }
+[move: {"e", "f"}, move: {"g", "h"}, delete: "i", delete: "j", add: "a",
+ add: "b", update: "c", update: "d"]
+
+```
+
+#### Merging
+
+Migrations can be merged into one single migration, removing any redundant operations so migrating the data can be done more efficiently.
+
+```elixir
+iex(1)> Yum.Migration.merge(%Yum.Migration{
+...(1)>     timestamp: 1,
+...(1)>     add: ["a", { :b, "b" }, "c"]
+...(1)> }, %Yum.Migration{
+...(1)>     timestamp: 2, 
+...(1)>     update: ["a", "b", { :c, "c" }, "d"]
+...(1)> })
+%Yum.Migration{add: ["a", {:b, "b"}, "c"], delete: [], move: [], timestamp: 2,
+ update: ["d"]}
+```
+
+#### Metadata
+
+Transaction operations can optionally have metadata attached to them. These are useful for attaching some contextual information with the given operation. Note that metadata will not be merged, rather whatever operation ends up in the output will still retain its metadata (but there will be no trace of the metadata from the operation that was deemed redundant and removed).
+
+Metadata is of the form `{ metadata, op }` where `op` is the operation value that has the metadata attached.
+
+```elixir
+iex(1)> Yum.Migration.new(%{
+...(1)>     "timestamp" => "1",
+...(1)>     "add" => [{ :my_custom_data, "a" }, "b"],
+...(1)> })
+%Yum.Migration{add: [my_custom_data: "a", "b"], delete: [], move: [], timestamp: 1,
+ update: []}
+```
