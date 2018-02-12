@@ -177,3 +177,26 @@ iex(1)> Yum.Data.ingredients |> Yum.Ingredient.new
   ref: "/dairy/cheeses/mozzarella",
   translation: %{"en" => %{"term" => "mozzarella"}}}]
 ```
+
+
+Working with refs
+-----------------
+
+Refs are the unique path name for the data source. The library provides convenient functions for working with refs to produce filters (`Yum.Data.ref_filter/1`), ref lists (`Yum.Util.match_ref/1` and `Yum.Util.ref_list/1`), get the name (`Yum.Util.name/1`), get the parent group (`Yum.Util.group_ref/1`).
+
+```elixir
+iex(1)> Yum.Data.ref_filter("/vegetables/tubers").("/vegetables")
+true
+iex(2)> Yum.Data.ref_filter("/vegetables/tubers").("/tubers")    
+false
+iex(3)> Yum.Data.ref_filter("/vegetables/tubers").("/vegetables/tubers")
+true
+iex(4)> Yum.Util.match_ref "/vegetables/tubers"
+["/vegetables/tubers", "/vegetables"]
+iex(5)> Yum.Util.ref_list ["vegetables", "tubers"]  
+["vegetables/tubers", "vegetables"]
+iex(6)> Yum.Util.name "/vegetables/tubers"
+"tubers"
+iex(7)> Yum.Util.group_ref "/vegetables/tubers"
+"/vegetables"
+```
