@@ -9,7 +9,15 @@ defmodule Yum.Mixfile do
             build_embedded: Mix.env == :prod,
             start_permanent: Mix.env == :prod,
             deps: deps(),
-            dialyzer: [plt_add_deps: :transitive]
+            dialyzer: [plt_add_deps: :transitive],
+            name: "Yum",
+            source_url: "https://github.com/ZURASTA/yum",
+            docs: [
+                main: "yum",
+                extras: [
+                    "README.md": [filename: "yum", title: "Yum"]
+                ]
+            ]
         ]
     end
 
@@ -32,7 +40,10 @@ defmodule Yum.Mixfile do
     defp deps do
         [
             { :toml_elixir, "~> 1.1" },
-            { :yaml_elixir, "~> 1.3" }
+            { :yaml_elixir, "~> 1.3" },
+            { :ex_doc, "~> 0.18", only: :dev, runtime: false },
+            { :simple_markdown, "~> 0.5", only: :dev, runtime: false },
+            { :ex_doc_simple_markdown, "~> 0.2.1", only: :dev, runtime: false }
         ]
     end
 end

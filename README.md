@@ -233,7 +233,7 @@ iex(1)> Yum.Migration.merge(%Yum.Migration{
 ...(1)>     timestamp: 1,
 ...(1)>     add: ["a", { :b, "b" }, "c"]
 ...(1)> }, %Yum.Migration{
-...(1)>     timestamp: 2, 
+...(1)>     timestamp: 2,
 ...(1)>     update: ["a", "b", { :c, "c" }, "d"]
 ...(1)> })
 %Yum.Migration{add: ["a", {:b, "b"}, "c"], delete: [], move: [], timestamp: 2,
