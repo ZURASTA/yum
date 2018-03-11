@@ -44,7 +44,7 @@ defmodule Yum.Util do
     @doc """
       Convert a ref or list of refs into a list of refs for each individual ref in the group.
     """
-    @spec ref_list(String.t | [String.t], [String.t]) :: [String.t]
+    @spec match_ref(String.t | [String.t], [String.t]) :: [String.t]
     def match_ref(ref, matches \\ [])
     def match_ref([], matches), do: matches
     def match_ref([ref|list], matches), do: match_ref(list, match_ref(ref, matches))
