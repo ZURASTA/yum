@@ -28,7 +28,7 @@ defmodule Yum.Migration do
     @doc """
       Convert to a migration struct
     """
-    @spec new(Yum.Data.migration) :: [t]
+    @spec new(Yum.Data.migration) :: t
     def new(data) do
         %Yum.Migration{ timestamp: String.to_integer(data["timestamp"]) }
         |> new_moved(data)
